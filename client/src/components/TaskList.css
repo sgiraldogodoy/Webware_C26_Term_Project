@@ -1,0 +1,12 @@
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-list__empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 32px 0;
+}
