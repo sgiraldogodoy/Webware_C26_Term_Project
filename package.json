@@ -1,0 +1,25 @@
+{
+  "name": "Webware Term Project",
+  "version": "0.1.0",
+  "description": "Webware Term Project",
+  "type": "module",
+  "author": "",
+  "scripts": {
+    "build": "npm --prefix client install && npm --prefix client run build && npm install",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.4",
+    "jsonwebtoken": "^9.0.3",
+    "mime": "^2.4.4",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.23.0"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "devDependencies": {
+    "express": "^5.2.1"
+  }
+}
