@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import path from "path";
 import { fileURLToPath } from "url";
 
+//Import Schemas
+import User from "./server/models/User.js";
 
 dotenv.config();
 
@@ -50,23 +52,43 @@ app.post("/api/",auth, async (req, res) => {//TODO fix URL
 
 });
 
+// GET Auth
+app.get("/api/auth/me", auth, async (req, res) => {
+    res.json(req.user);
+});
+
 // POST User
 app.post("/api/login", async (req, res) => {
-    const {username, password} = req.body
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET missing");
+    }
 
-    let user = await User.findOne({ username });
+    const { username, password } = req.body;
 
-    if (user.password !== password) {
-        return res.status(401).json({ error: "Invalid password" });
+    const user = await User.findOne({ username });
+
+    if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    if (user.password !== password) { // later replace with bcrypt
+        return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-        { username: user.username },
+        {
+            id: user._id,
+            role: user.role,
+            schoolId: user.schoolId
+        },
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
     );
 
-    res.json({ token });
+    res.json({
+        token,
+        role: user.role
+    });
 });
 
 
