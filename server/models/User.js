@@ -21,8 +21,7 @@ const userSchema = new mongoose.Schema(
             required: true
         },
         schoolId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "School",
+            type: Number,
             default: null
         }
     },

@@ -82,13 +82,13 @@ app.get("/api/schools/public", async (req, res) => {
         const query = { ACTIVE_INT: "Y" }; // remove if you don't want active filtering
 
         const schools = await School.find(query)
-            .select({ NAME_TX: 1, REGION_CD: 1, GROUP_CD: 1, GENDER_COMPOSITION_CD: 1 })
+            .select({ ID: 1, NAME_TX: 1, REGION_CD: 1, GROUP_CD: 1, GENDER_COMPOSITION_CD: 1 })
             .sort({ NAME_TX: 1 })
             .lean();
 
         res.json(
             schools.map((s) => ({
-                _id: s._id,
+                id: s.ID,
                 name: s.NAME_TX,
                 region: s.REGION_CD,
                 group: s.GROUP_CD,
@@ -131,23 +131,19 @@ app.post("/api/register", async (req, res) => {
         const p = validatePassword(password);
         if (!p.ok) return res.status(400).json({ error: p.message });
 
+        let schoolIdNum = null;
         // Validate role + schoolId rules
         const finalRole = role === "ADMIN" ? "ADMIN" : "SCHOOL"; // default SCHOOL
         if (finalRole === "SCHOOL") {
-            if (!schoolId){
-                return res.status(400).json({ error: "schoolId is required for SCHOOL users." });
-            }
-            // schoolId must be valid ObjectId
-            if (!mongoose.Types.ObjectId.isValid(schoolId)) {
+            // Expect schoolId to be a number (or numeric string)
+            schoolIdNum = Number(schoolId);
+
+            if (!Number.isInteger(schoolIdNum) || schoolIdNum <= 0) {
                 return res.status(400).json({ error: "Invalid school selection." });
             }
 
-            // confirm the school exists (and active, if you use ACTIVE_INT)
-            const school = await School.findOne({
-                _id: schoolId,
-                ACTIVE_INT: "Y"
-            }).lean();
-
+            // confirm school exists and active
+            const school = await School.findOne({ ID: schoolIdNum, ACTIVE_INT: "Y" }).lean();
             if (!school) {
                 return res.status(400).json({ error: "Selected school not found." });
             }
@@ -170,7 +166,7 @@ app.post("/api/register", async (req, res) => {
             username: u.username,
             password: hashed,
             role: finalRole,
-            schoolId: finalRole === "SCHOOL" ? schoolId : null
+            schoolId: finalRole === "SCHOOL" ? schoolIdNum : null
         });
 
         return res.status(201).json({ message: "User created", id: user._id });

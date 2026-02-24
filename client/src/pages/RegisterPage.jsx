@@ -84,7 +84,7 @@ export default function RegisterPage() {
                     username: usernameCheck.username,
                     password,
                     role,
-                    schoolId: role === "SCHOOL" ? schoolId.trim() : null
+                    schoolId: role === "SCHOOL" ? Number(schoolId) : null
                 })
             });
 
@@ -162,7 +162,7 @@ export default function RegisterPage() {
                         >
                             <option value="">Select a school...</option>
                             {schools.map((s) => (
-                                <option key={s._id} value={s._id}>
+                                <option key={s.id} value={s.id}>
                                     {s.name} ({s.region})
                                 </option>
                             ))}
