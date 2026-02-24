@@ -10,8 +10,6 @@ import {validateUsername, validatePassword} from "./server/registerValidator.js"
 //Import Schemas
 import User from "./server/models/User.js";
 
-await User.init();
-
 dotenv.config();
 
 const app = express();
