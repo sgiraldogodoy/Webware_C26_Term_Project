@@ -13,6 +13,7 @@ import PeerGroup from "./server/models/PeerGroup.js";
 import Submission from "./server/models/Submission.js";
 import EmployeePersonnel from "./server/models/EmployeePersonnel.js";
 import EmployeeAdminSupport from "./server/models/EmployeeAdminSupport.js";
+import School from "./server/models/School.js";
 
 dotenv.config();
 
@@ -28,6 +29,14 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(express.json()); // parse JSON bodies
 app.use(express.static("./client/public")); // serve files from /public
 
+
+/**
+ * Authentication middleware - verifies JWT token and attaches user info to req.user
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
 function auth(req, res, next) {
     if (!process.env.JWT_SECRET) {
         throw new Error("JWT_SECRET missing");
@@ -46,6 +55,7 @@ function auth(req, res, next) {
     }
 }
 
+/*----------------------ENDPOINTS-----------------------*/
 
 // GET template
 app.get("/api", auth, async (req, res) => {//TODO fix URL
@@ -57,12 +67,58 @@ app.post("/api/",auth, async (req, res) => {//TODO fix URL
 
 });
 
-// GET Auth
+/**
+ * Auth test endpoint - returns user info from JWT
+ */
 app.get("/api/auth/me", auth, async (req, res) => {
     res.json(req.user);
 });
 
-// POST new User
+/**
+ * Public endpoint to get list of schools. No auth required.
+ */
+app.get("/api/schools/public", async (req, res) => {
+    try {
+        const query = { ACTIVE_INT: "Y" }; // remove if you don't want active filtering
+
+        const schools = await School.find(query)
+            .select({ NAME_TX: 1, REGION_CD: 1, GROUP_CD: 1, GENDER_COMPOSITION_CD: 1 })
+            .sort({ NAME_TX: 1 })
+            .lean();
+
+        res.json(
+            schools.map((s) => ({
+                _id: s._id,
+                name: s.NAME_TX,
+                region: s.REGION_CD,
+                group: s.GROUP_CD,
+                gender: s.GENDER_COMPOSITION_CD,
+            }))
+        );
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Failed to load schools." });
+    }
+});
+
+/** USER ENDPOINTS
+ * Registration rules:
+ * - Username: 3-30 chars, letters/numbers/underscores, unique
+ * - Password: min 8 chars, at least 1 letter and 1 number
+ * - Role: "ADMIN" or "SCHOOL" (default SCHOOL)
+ * - If role is SCHOOL, schoolId is required. If ADMIN, schoolId must be null.
+ *
+ * Responses:
+ * - 201 Created: { message: "User created", id: user._id }
+ * - 400 Bad Request: { error: "Validation error message" }
+ * - 409 Conflict: { error: "Username already taken." }
+ * - 500 Server Error: { error: "Server error" }
+ *
+ * Login rules:
+ * - Validate credentials
+ * - On success, return JWT token and role
+ * - 401 Unauthorized: { error: "Invalid credentials" }
+ */
 app.post("/api/register", async (req, res) => {
     try {
         const { username: usernameRaw, password, role, schoolId } = req.body;
@@ -77,8 +133,25 @@ app.post("/api/register", async (req, res) => {
 
         // Validate role + schoolId rules
         const finalRole = role === "ADMIN" ? "ADMIN" : "SCHOOL"; // default SCHOOL
-        if (finalRole === "SCHOOL" && !schoolId) {
-            return res.status(400).json({ error: "schoolId is required for SCHOOL users." });
+        if (finalRole === "SCHOOL") {
+            if (!schoolId){
+                return res.status(400).json({ error: "schoolId is required for SCHOOL users." });
+            }
+            // schoolId must be valid ObjectId
+            if (!mongoose.Types.ObjectId.isValid(schoolId)) {
+                return res.status(400).json({ error: "Invalid school selection." });
+            }
+
+            // confirm the school exists (and active, if you use ACTIVE_INT)
+            const school = await School.findOne({
+                _id: schoolId,
+                ACTIVE_INT: "Y"
+            }).lean();
+
+            if (!school) {
+                return res.status(400).json({ error: "Selected school not found." });
+            }
+
         }
         if (finalRole === "ADMIN" && schoolId) {
             return res.status(400).json({ error: "ADMIN users must not have a schoolId." });
@@ -119,7 +192,8 @@ app.post("/api/login", async (req, res) => {
 
     const { username, password } = req.body;
 
-    const user = await User.findOne({ username });
+    const normalizedUsername = (username ?? "").trim().toLowerCase();
+    const user = await User.findOne({ username: normalizedUsername });
 
     if (!user) {
         return res.status(401).json({ error: "Invalid credentials" });

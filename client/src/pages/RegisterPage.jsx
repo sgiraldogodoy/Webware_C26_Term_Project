@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useNavigate } from "react-router-dom";
 
 function validateUsernameClient(raw) {
@@ -45,16 +45,27 @@ export default function RegisterPage() {
     const [password, setPassword] = useState("");
     const [confirm_password, setConfirmPassword] = useState("");
     const [role, setRole] = useState("SCHOOL");
-    const [schoolId, setSchoolId] = useState(""); // for now you can paste an ObjectId
+    const [schools, setSchools] = useState([]);
+    const [schoolId, setSchoolId] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
+
     const navigate = useNavigate();
 
     const usernameCheck = useMemo(() => validateUsernameClient(username), [username]);
-    const passwordCheck = useMemo(() => validatePasswordClient(password, confirm_password), [password]);
+    const passwordCheck = useMemo(
+        () => validatePasswordClient(password, confirm_password),
+        [password, confirm_password]
+    );
 
+    useEffect(() => {
+        fetch("/api/schools/public")
+            .then((r) => r.json())
+            .then(setSchools)
+            .catch(() => setError("Could not load schools list."));
+    }, []);
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
@@ -142,16 +153,20 @@ export default function RegisterPage() {
 
                 {role === "SCHOOL" && (
                     <>
-                        <label style={styles.label}>School ID</label>
-                        <input
-                            style={styles.input}
+                        <label style={styles.label}>School</label>
+                        <select
                             value={schoolId}
                             onChange={(e) => setSchoolId(e.target.value)}
-                            placeholder="Paste the school ObjectId for now"
-                        />
-                        <div style={styles.hint}>
-                            Later we’ll replace this with a dropdown of schools.
-                        </div>
+                            required
+                            className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        >
+                            <option value="">Select a school...</option>
+                            {schools.map((s) => (
+                                <option key={s._id} value={s._id}>
+                                    {s.name} ({s.region})
+                                </option>
+                            ))}
+                        </select>
                     </>
                 )}
 
