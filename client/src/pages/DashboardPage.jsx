@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// import components
+import EmployeeBarChart from "../components/EmployeeBarChart";
+
 const CATEGORIES = [
     { id: "overview", label: "Overview" },
     { id: "personnel", label: "Personnel" },
@@ -211,11 +214,13 @@ export default function DashboardPage() {
 
                 {/* Charts (placeholders for now) */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <div style={{ border: "1px solid #ddd", borderRadius: "10px", padding: "12px", minHeight: "260px" }}>
-                        <div style={{ fontWeight: 600, marginBottom: "8px" }}>Bar Chart</div>
-                        <div style={{ opacity: 0.75 }}>
-                            Replace this with Chart.js bar chart using dashboardData.charts.bar
-                        </div>
+                    <div style={{
+                        border: "1px solid #ddd",
+                        borderRadius: "10px",
+                        padding: "12px",
+                        minHeight: "300px"
+                    }}>
+                        <EmployeeBarChart kpis={dashboardData?.kpis} />
                     </div>
 
                     <div style={{ border: "1px solid #ddd", borderRadius: "10px", padding: "12px", minHeight: "260px" }}>
