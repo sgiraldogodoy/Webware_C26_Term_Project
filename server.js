@@ -94,7 +94,7 @@ app.get("/api/schools/public", async (req, res) => {
         );
     } catch (e) {
         console.error(e);
-        res.status(500).json({ error: "Failed to load schools." });
+        res.status(500).json({error: "Failed to load schools."});
     }
 });
 
@@ -118,7 +118,7 @@ app.get("/api/schools/public", async (req, res) => {
  */
 app.post("/api/register", async (req, res) => {
     try {
-        const { username: usernameRaw, password, role, schoolId } = req.body;
+        const {username: usernameRaw, password, schoolId} = req.body;
 
         // Validate username
         const u = validateUsername(usernameRaw);
@@ -128,26 +128,19 @@ app.post("/api/register", async (req, res) => {
         const p = validatePassword(password);
         if (!p.ok) return res.status(400).json({ error: p.message });
 
-        let schoolIdNum = null;
-        // Validate role + schoolId rules
-        const finalRole = role === "ADMIN" ? "ADMIN" : "SCHOOL"; // default SCHOOL
-        if (finalRole === "SCHOOL") {
-            // Expect schoolId to be a number (or numeric string)
-            schoolIdNum = Number(schoolId);
+        const finalRole = "SCHOOL";
 
-            if (!Number.isInteger(schoolIdNum) || schoolIdNum <= 0) {
-                return res.status(400).json({ error: "Invalid school selection." });
-            }
+        // Expect schoolId to be a number (or numeric string)
+        const schoolIdNum = Number(schoolId);
 
-            // confirm school exists and active
-            const school = await School.findOne({ ID: schoolIdNum, ACTIVE_INT: "Y" }).lean();
-            if (!school) {
-                return res.status(400).json({ error: "Selected school not found." });
-            }
-
+        if (!Number.isInteger(schoolIdNum) || schoolIdNum <= 0) {
+            return res.status(400).json({error: "Invalid school selection."});
         }
-        if (finalRole === "ADMIN" && schoolId) {
-            return res.status(400).json({ error: "ADMIN users must not have a schoolId." });
+
+        // confirm school exists and active
+        const school = await School.findOne({ID: schoolIdNum, ACTIVE_INT: "Y"}).lean();
+        if (!school) {
+            return res.status(400).json({error: "Selected school not found."});
         }
 
         // Uniqueness check (fast fail)
@@ -163,7 +156,7 @@ app.post("/api/register", async (req, res) => {
             username: u.username,
             password: hashed,
             role: finalRole,
-            schoolId: finalRole === "SCHOOL" ? schoolIdNum : null
+            schoolId: schoolIdNum
         });
 
         return res.status(201).json({ message: "User created", id: user._id });
