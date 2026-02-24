@@ -36,6 +36,13 @@ export default function DashboardPage() {
             <h1>Dashboard</h1>
             <p>Role: {user.role}</p>
             <p>School ID: {user.schoolId || "Admin user"}</p>
+            <button
+                className="btn"
+                onClick={() => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+                }}
+            > Log Out</button>
         </div>
     );
 }

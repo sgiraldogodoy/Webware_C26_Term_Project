@@ -21,7 +21,7 @@ function validateUsernameClient(raw) {
     };
 }
 
-function validatePasswordClient(pw) {
+function validatePasswordClient(pw, confirm_pw) {
     if (!pw) return { ok: false, message: "Password is required." };
     if (pw.length < 8 || pw.length > 64) return { ok: false, message: "Password must be 8–64 characters." };
     if (/\s/.test(pw)) return { ok: false, message: "No spaces allowed." };
@@ -36,12 +36,14 @@ function validatePasswordClient(pw) {
     if (!(hasLower && hasUpper && hasDigit && hasSpecial)) {
         return { ok: false, message: "Must include uppercase, lowercase, number, and special character." };
     }
+    if (pw !== confirm_pw) return { ok: false, message: "Passwords do not match." };
     return { ok: true, message: "" };
 }
 
 export default function RegisterPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [confirm_password, setConfirmPassword] = useState("");
     const [role, setRole] = useState("SCHOOL");
     const [schoolId, setSchoolId] = useState(""); // for now you can paste an ObjectId
     const [error, setError] = useState("");
@@ -51,7 +53,7 @@ export default function RegisterPage() {
     const navigate = useNavigate();
 
     const usernameCheck = useMemo(() => validateUsernameClient(username), [username]);
-    const passwordCheck = useMemo(() => validatePasswordClient(password), [password]);
+    const passwordCheck = useMemo(() => validatePasswordClient(password, confirm_password), [password]);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -122,6 +124,15 @@ export default function RegisterPage() {
                 <div style={styles.hint}>
                     {password.length > 0 && (passwordCheck.ok ? "✓ Strong password" : passwordCheck.message)}
                 </div>
+                <label style={styles.label}>Confirm Password</label>
+                <input
+                    style={styles.input}
+                    value={confirm_password}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    type="password"
+                    placeholder="type the password again to confirm"
+                    autoComplete="new-password"
+                />
 
                 <label style={styles.label}>Role</label>
                 <select style={styles.input} value={role} onChange={(e) => setRole(e.target.value)}>
@@ -151,7 +162,7 @@ export default function RegisterPage() {
                 <button
                     type="button"
                     onClick={() => navigate("/")}
-                    style={{ ...styles.button, background: "#777" }}
+                    style={{...styles.button, background: "#777"}}
                 >
                     Back to Login
                 </button>
@@ -178,9 +189,9 @@ const styles = {
         flexDirection: "column",
         gap: 10
     },
-    label: { fontSize: 14, fontWeight: 600 },
-    input: { padding: 10, fontSize: 16 },
-    hint: { fontSize: 12, color: "#555", minHeight: 16 },
+    label: {fontSize: 14, fontWeight: 600},
+    input: {padding: 10, fontSize: 16},
+    hint: {fontSize: 12, color: "#555", minHeight: 16 },
     button: {
         padding: 10,
         fontSize: 16,
