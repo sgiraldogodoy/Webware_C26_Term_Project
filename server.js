@@ -2,9 +2,15 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import express from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import path from "path";
 import { fileURLToPath } from "url";
+import {validateUsername, validatePassword} from "./server/registerValidator.js"
 
+//Import Schemas
+import User from "./server/models/User.js";
+
+await User.init();
 
 dotenv.config();
 
@@ -50,23 +56,94 @@ app.post("/api/",auth, async (req, res) => {//TODO fix URL
 
 });
 
+// GET Auth
+app.get("/api/auth/me", auth, async (req, res) => {
+    res.json(req.user);
+});
+
+// POST new User
+app.post("/api/register", async (req, res) => {
+    try {
+        const { username: usernameRaw, password, role, schoolId } = req.body;
+
+        // Validate username
+        const u = validateUsername(usernameRaw);
+        if (!u.ok) return res.status(400).json({ error: u.message });
+
+        // Validate password
+        const p = validatePassword(password);
+        if (!p.ok) return res.status(400).json({ error: p.message });
+
+        // Validate role + schoolId rules
+        const finalRole = role === "ADMIN" ? "ADMIN" : "SCHOOL"; // default SCHOOL
+        if (finalRole === "SCHOOL" && !schoolId) {
+            return res.status(400).json({ error: "schoolId is required for SCHOOL users." });
+        }
+        if (finalRole === "ADMIN" && schoolId) {
+            return res.status(400).json({ error: "ADMIN users must not have a schoolId." });
+        }
+
+        // Uniqueness check (fast fail)
+        const existing = await User.findOne({ username: u.username }).lean();
+        if (existing) {
+            return res.status(409).json({ error: "Username already taken." });
+        }
+
+        // Hash password
+        const hashed = await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+            username: u.username,
+            password: hashed,
+            role: finalRole,
+            schoolId: finalRole === "SCHOOL" ? schoolId : null
+        });
+
+        return res.status(201).json({ message: "User created", id: user._id });
+    } catch (err) {
+        // Handle unique index race condition
+        if (err?.code === 11000) {
+            return res.status(409).json({ error: "Username already taken." });
+        }
+        console.error(err);
+        return res.status(500).json({ error: "Server error" });
+    }
+});
+
 // POST User
 app.post("/api/login", async (req, res) => {
-    const {username, password} = req.body
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET missing");
+    }
 
-    let user = await User.findOne({ username });
+    const { username, password } = req.body;
 
-    if (user.password !== password) {
-        return res.status(401).json({ error: "Invalid password" });
+    const user = await User.findOne({ username });
+
+    if (!user) {
+        return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+        return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-        { username: user.username },
+        {
+            id: user._id,
+            role: user.role,
+            schoolId: user.schoolId
+        },
         process.env.JWT_SECRET,
         { expiresIn: "1d" }
     );
 
-    res.json({ token });
+    res.json({
+        token,
+        role: user.role
+    });
 });
 
 
