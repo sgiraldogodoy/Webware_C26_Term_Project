@@ -211,6 +211,8 @@ app.post("/api/login", async (req, res) => {
         { expiresIn: "1d" }
     );
 
+    console.log("LOGIN user.schoolId =", user.schoolId, "type:", typeof user.schoolId);
+
     res.json({
         token,
         role: user.role
@@ -263,10 +265,16 @@ app.get("/api/dashboard", auth, async (req, res) => {
             return res.status(400).json({ error: "Invalid schoolId on user token (expected number)" });
         }
 
+        console.log("dashboard user:", req.user);
+        console.log("dashboard params:", { year: req.query.year, category: req.query.category });
+        console.log("dashboard query:", { SCHOOL_ID: schoolIdNum, SCHOOL_YR_ID: schoolYrId });
+
         const personnel = await EmployeePersonnel.findOne({
             SCHOOL_ID: schoolIdNum,
             SCHOOL_YR_ID: schoolYrId
         }).lean();
+
+        console.log("personnel found?", !!personnel);
 
         const kpis = [
             { label: "Total Employees", yourValue: toNum(personnel?.TOTAL_EMPLOYEES) },

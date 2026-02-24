@@ -12,7 +12,7 @@ export default function DashboardPage() {
     const [user, setUser] = useState(null);
 
     // filters (year, category, peer group, compare mode)
-    const [year, setYear] = useState("2024");
+    const [year, setYear] = useState("30");
     const [category, setCategory] = useState("overview");
     const [peerGroupId, setPeerGroupId] = useState("default");
     const [compareMode, setCompareMode] = useState("avg"); // avg | median | range
