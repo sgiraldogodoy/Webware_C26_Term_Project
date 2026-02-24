@@ -77,6 +77,7 @@ export default function DashboardPage() {
         setDashError("");
         setDashboardData(null);
 
+        // create query params based on filters
         const params = new URLSearchParams({
             year,
             category,
@@ -87,9 +88,16 @@ export default function DashboardPage() {
         fetch(`/api/dashboard?${params.toString()}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to load dashboard data");
-                return res.json();
+            // .then(res => {
+            //     if (!res.ok) throw new Error("Failed to load dashboard data");
+            //     return res.json();
+            // })
+            .then(async (res) => {
+                const body = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(body.error || `Failed to load dashboard data (${res.status})`);
+                }
+                return body;
             })
             .then(data => setDashboardData(data))
             .catch(err => setDashError(err.message || "Dashboard error"))
@@ -126,10 +134,8 @@ export default function DashboardPage() {
                     Year{" "}
                     <select value={year} onChange={e => setYear(e.target.value)}>
                         {/* replace with years from your SCHOOL_YEAR table if you want */}
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
+                        <option value="30">2022</option>
+                        <option value="31">2023</option>
                     </select>
                 </label>
 

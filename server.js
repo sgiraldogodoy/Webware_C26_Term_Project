@@ -9,6 +9,10 @@ import {validateUsername, validatePassword} from "./server/registerValidator.js"
 
 //Import Schemas
 import User from "./server/models/User.js";
+import PeerGroup from "./server/models/PeerGroup.js";
+import Submission from "./server/models/Submission.js";
+import EmployeePersonnel from "./server/models/EmployeePersonnel.js";
+import EmployeeAdminSupport from "./server/models/EmployeeAdminSupport.js";
 
 dotenv.config();
 
@@ -143,6 +147,105 @@ app.post("/api/login", async (req, res) => {
     });
 });
 
+// dashboard endpoints
+// helper functions
+function toNum(x) {
+    if (x === null || x === undefined) return null;
+    if (typeof x === "string" && x.toLowerCase() === "NULL") return null;
+    const n = Number(x);
+    return Number.isFinite(n) ? n : null;
+}
+
+function computeStats(values) {
+    // first get numeric vals
+    const xs = values.map(toNum).filter(v => v !== null).sort((a, b) => a - b);
+    const count = xs.length;
+    if (!count) return { count: 0, avg: null, median: null, min: null, max: null };
+
+    const avg = xs.reduce((s, v) => s + v, 0) / count;
+    const mid = Math.floor(count / 2);
+    const median = count % 2 === 0 ? (xs[mid - 1] + xs[mid]) / 2 : xs[mid];
+
+    return { count, avg, median, min: xs[0], max: xs[count - 1] };
+}
+
+app.get("/api/peer-groups", auth, async (req, res) => {
+    // for now just return all peer groups - in future we can filter based on user/school
+    const groups = await PeerGroup.find({}).lean();
+    res.json(groups.map(g => ({ id: g._id.toString(), name: g.name })));
+});
+
+app.get("/api/dashboard", auth, async (req, res) => {
+    try {
+        const schoolYrId = Number(req.query.year); // <-- this is SCHOOL_YR_ID now
+        const category = (req.query.category || "overview").toString();
+
+        if (!Number.isFinite(schoolYrId)) {
+            return res.status(400).json({ error: "Invalid year (expected SCHOOL_YR_ID)" });
+        }
+
+        if (req.user.role !== "SCHOOL") {
+            return res.status(403).json({ error: "Only SCHOOL users can view dashboards." });
+        }
+
+        const schoolIdNum = Number(req.user.schoolId);
+        if (!Number.isFinite(schoolIdNum)) {
+            return res.status(400).json({ error: "Invalid schoolId on user token (expected number)" });
+        }
+
+        const personnel = await EmployeePersonnel.findOne({
+            SCHOOL_ID: schoolIdNum,
+            SCHOOL_YR_ID: schoolYrId
+        }).lean();
+
+        const kpis = [
+            { label: "Total Employees", yourValue: toNum(personnel?.TOTAL_EMPLOYEES) },
+            { label: "Full-Time Employees", yourValue: toNum(personnel?.FT_EMPLOYEES) },
+            { label: "POC Employees", yourValue: toNum(personnel?.POC_EMPLOYEES) },
+            { label: "FTE Only", yourValue: toNum(personnel?.FTE_ONLY_NUM) },
+        ];
+
+        res.json({
+            kpis,
+            charts: {
+                bar: {
+                    labels: ["Total Employees", "Full-Time Employees", "POC Employees", "FTE Only"],
+                    your: kpis.map(k => k.yourValue),
+                    peer: [null, null, null, null] // add peer after you implement peer groups
+                },
+                line: null
+            }
+        });
+    } catch (err) {
+        console.error("Dashboard route error:", err);
+        return res.status(500).json({ error: "Server error in /api/dashboard" });
+    }
+});
+
+/*
+app.get("/api/dashboard", auth, async (req, res) => {
+
+    console.log("Dashboard request received:", req.query);
+
+    res.json({
+        kpis: [
+            { label: "Total Employees", yourValue: 214, peerValue: 198, delta: 16 }
+        ],
+        charts: {
+            bar: {
+                labels: ["Employees"],
+                your: [214],
+                peer: [198]
+            },
+            line: {
+                labels: ["2022", "2023", "2024"],
+                your: [200, 210, 214],
+                peer: [190, 195, 198]
+            }
+        }
+    });
+});
+*/
 
 // DELETE template
 app.delete("/api/", auth, async (req, res) => {//TODO fix URL
