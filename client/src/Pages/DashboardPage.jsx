@@ -11,7 +11,7 @@ const CATEGORIES = [
 export default function DashboardPage() {
     const [user, setUser] = useState(null);
 
-    // filters
+    // filters (year, category, peer group, compare mode)
     const [year, setYear] = useState("2024");
     const [category, setCategory] = useState("overview");
     const [peerGroupId, setPeerGroupId] = useState("default");
@@ -26,13 +26,14 @@ export default function DashboardPage() {
     const navigate = useNavigate();
     const token = useMemo(() => localStorage.getItem("token"), []);
 
-    // 1) Auth gate (yours, kept)
+    // make sure user logged in
     useEffect(() => {
         if (!token) {
             navigate("/");
             return;
         }
 
+        // fetch user info
         fetch("/api/auth/me", {
             headers: { Authorization: `Bearer ${token}` }
         })
@@ -47,7 +48,7 @@ export default function DashboardPage() {
             });
     }, [navigate, token]);
 
-    // 2) Fetch peer groups (once)
+    // fetch peer groups (once)
     useEffect(() => {
         if (!token) return;
 
@@ -58,19 +59,17 @@ export default function DashboardPage() {
             .then(data => {
                 // data should be like [{id, name}]
                 setPeerGroups(data || []);
-                // pick a default peer group if you want
+                // default peer group?
                 if ((data || []).length > 0 && peerGroupId === "default") {
                     setPeerGroupId(data[0].id);
                 }
             })
             .catch(() => {
-                // ok to ignore early; you can also hardcode peer groups for dummy data
                 setPeerGroups([]);
             });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
-    // 3) Fetch dashboard data whenever filters change
+    // fetch dashboard data whenever filters change
     useEffect(() => {
         if (!token || !user) return;
 
