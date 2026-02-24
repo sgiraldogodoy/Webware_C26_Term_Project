@@ -153,7 +153,7 @@ export default function RegisterPage() {
 
                 {role === "SCHOOL" && (
                     <>
-                        <label style={styles.label}>School ID</label>
+                        <label style={styles.label}>School</label>
                         <select
                             value={schoolId}
                             onChange={(e) => setSchoolId(e.target.value)}
