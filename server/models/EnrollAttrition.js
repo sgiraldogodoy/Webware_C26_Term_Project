@@ -30,4 +30,4 @@ const enrollAttritionSchema = new mongoose.Schema(
     { collection: "enrollAttrition" }
 );
 
-export default mongoose.model("EnrollAttrition", enrollAttritionSchema);
+export default mongoose.model("EnrollAttrition", enrollAttritionSchema,"enrollAttrition");

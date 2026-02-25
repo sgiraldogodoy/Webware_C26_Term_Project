@@ -34,4 +34,4 @@ const employeePersonnelSchema = new mongoose.Schema(
     { collection: "employeePersonnel" }
 );
 
-export default mongoose.model("EmployeePersonnel", employeePersonnelSchema);
+export default mongoose.model("EmployeePersonnel", employeePersonnelSchema, "employeePersonnel");

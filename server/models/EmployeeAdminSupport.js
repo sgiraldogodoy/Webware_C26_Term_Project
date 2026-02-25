@@ -29,4 +29,4 @@ const employeeAdminSupportSchema = new mongoose.Schema(
     { collection: "employeeAdminSupport" }
 );
 
-export default mongoose.model("EmployeeAdminSupport", employeeAdminSupportSchema);
+export default mongoose.model("EmployeeAdminSupport", employeeAdminSupportSchema, "employeeAdminSupport");
