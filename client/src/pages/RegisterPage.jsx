@@ -1,5 +1,12 @@
 import {useEffect, useMemo, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import Page from "../components/ui/Page";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import Select from "../components/ui/Select";
+import FormField from "../components/ui/FormField";
+import Alert from "../components/ui/Alert";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/Card";
 
 function validateUsernameClient(raw) {
     const username = (raw ?? "").trim().toLowerCase();
@@ -17,11 +24,11 @@ function validateUsernameClient(raw) {
         username,
         message: ok
             ? ""
-            : "3–20 chars, start with a letter, letters/numbers/._ only, no consecutive or trailing ./_"
+            : "3–20 chars, start with a letter, letters/numbers/._ only, no consecutive or trailing ./_",
     };
 }
 
-function validatePasswordClient(pw, confirm_pw) {
+function validatePasswordClient(pw, confirmPw) {
     if (!pw) return { ok: false, message: "Password is required." };
     if (pw.length < 8 || pw.length > 64) return { ok: false, message: "Password must be 8–64 characters." };
     if (/\s/.test(pw)) return { ok: false, message: "No spaces allowed." };
@@ -36,15 +43,14 @@ function validatePasswordClient(pw, confirm_pw) {
     if (!(hasLower && hasUpper && hasDigit && hasSpecial)) {
         return { ok: false, message: "Must include uppercase, lowercase, number, and special character." };
     }
-    if (pw !== confirm_pw) return { ok: false, message: "Passwords do not match." };
+    if (pw !== confirmPw) return { ok: false, message: "Passwords do not match." };
     return { ok: true, message: "" };
 }
 
 export default function RegisterPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [confirm_password, setConfirmPassword] = useState("");
-    const [role, setRole] = useState("SCHOOL");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [schools, setSchools] = useState([]);
     const [schoolId, setSchoolId] = useState("");
     const [error, setError] = useState("");
@@ -56,14 +62,14 @@ export default function RegisterPage() {
 
     const usernameCheck = useMemo(() => validateUsernameClient(username), [username]);
     const passwordCheck = useMemo(
-        () => validatePasswordClient(password, confirm_password),
-        [password, confirm_password]
+        () => validatePasswordClient(password, confirmPassword),
+        [password, confirmPassword]
     );
 
     useEffect(() => {
         fetch("/api/schools/public")
             .then((r) => r.json())
-            .then(setSchools)
+            .then((data) => setSchools(Array.isArray(data) ? data : []))
             .catch(() => setError("Could not load schools list."));
     }, []);
     async function handleSubmit(e) {
@@ -71,9 +77,9 @@ export default function RegisterPage() {
         setError("");
         setSuccess("");
 
+        if (!schoolId) return setError("Please select a school.");
         if (!usernameCheck.ok) return setError(usernameCheck.message);
         if (!passwordCheck.ok) return setError(passwordCheck.message);
-        if (role === "SCHOOL" && !schoolId.trim()) return setError("schoolId is required for SCHOOL users.");
 
         setSubmitting(true);
         try {
@@ -83,19 +89,15 @@ export default function RegisterPage() {
                 body: JSON.stringify({
                     username: usernameCheck.username,
                     password,
-                    role,
-                    schoolId: role === "SCHOOL" ? Number(schoolId) : null
-                })
+                    schoolId: Number(schoolId),
+                }),
             });
 
             const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || "Registration failed");
-            }
+            if (!res.ok) throw new Error(data.error || "Registration failed");
 
             setSuccess("Account created! You can log in now.");
-            setTimeout(() => navigate("/"), 800);
+            setTimeout(() => navigate("/"), 700);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -104,119 +106,63 @@ export default function RegisterPage() {
     }
 
     return (
-        <div style={styles.container}>
-            <form onSubmit={handleSubmit} style={styles.form}>
-                <h2>Create Account</h2>
+        <Page>
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle>Create account</CardTitle>
+                    <CardDescription>Choose your school, then create a username and password.</CardDescription>
+                    {error && <Alert variant="error" className="mt-3">{error}</Alert>}
+                    {success && <Alert variant="success" className="mt-3">{success}</Alert>}
+                </CardHeader>
 
-                {error && <div style={styles.error}>{error}</div>}
-                {success && <div style={styles.success}>{success}</div>}
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <FormField label="School" help="Pick your school from the list.">
+                            <Select value={schoolId} onChange={(e) => setSchoolId(e.target.value)} required>
+                                <option value="">Select a school...</option>
+                                {schools.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.name} ({s.region})
+                                    </option>
+                                ))}
+                            </Select>
+                        </FormField>
 
-                <label style={styles.label}>Username</label>
-                <input
-                    style={styles.input}
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. school_user1"
-                    autoComplete="username"
-                />
-                <div style={styles.hint}>
-                    {username.length > 0 && (usernameCheck.ok ? "✓ Looks good" : usernameCheck.message)}
-                </div>
-
-                <label style={styles.label}>Password</label>
-                <input
-                    style={styles.input}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    type="password"
-                    placeholder="8–64 chars, mixed types"
-                    autoComplete="new-password"
-                />
-                <div style={styles.hint}>
-                    {password.length > 0 && (passwordCheck.ok ? "✓ Strong password" : passwordCheck.message)}
-                </div>
-                <label style={styles.label}>Confirm Password</label>
-                <input
-                    style={styles.input}
-                    value={confirm_password}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    type="password"
-                    placeholder="type the password again to confirm"
-                    autoComplete="new-password"
-                />
-
-                <label style={styles.label}>Role</label>
-                <select style={styles.input} value={role} onChange={(e) => setRole(e.target.value)}>
-                    <option value="SCHOOL">School User</option>
-                    <option value="ADMIN">Osprey Admin</option>
-                </select>
-
-                {role === "SCHOOL" && (
-                    <>
-                        <label style={styles.label}>School</label>
-                        <select
-                            value={schoolId}
-                            onChange={(e) => setSchoolId(e.target.value)}
-                            required
-                            className="w-full rounded-md border border-gray-300 px-3 py-2"
+                        <FormField
+                            label="Username"
+                            help="3–20 chars. Letters/numbers/._ only."
+                            error={username.length > 0 && !usernameCheck.ok ? usernameCheck.message : ""}
                         >
-                            <option value="">Select a school...</option>
-                            {schools.map((s) => (
-                                <option key={s.id} value={s.id}>
-                                    {s.name} ({s.region})
-                                </option>
-                            ))}
-                        </select>
-                    </>
-                )}
+                            <Input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" />
+                        </FormField>
 
-                <button disabled={submitting} style={styles.button}>
-                    {submitting ? "Creating..." : "Register"}
-                </button>
+                        <FormField
+                            label="Password"
+                            help="8–64 chars. Upper + lower + number + special. Any order. No spaces."
+                            error={password.length > 0 && !passwordCheck.ok ? passwordCheck.message : ""}
+                        >
+                            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
+                        </FormField>
 
-                <button
-                    type="button"
-                    onClick={() => navigate("/")}
-                    style={{...styles.button, background: "#777"}}
-                >
-                    Back to Login
-                </button>
-            </form>
-        </div>
+                        <FormField label="Confirm password">
+                            <Input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                autoComplete="new-password"
+                            />
+                        </FormField>
+
+                        <Button className="w-full" type="submit" disabled={submitting}>
+                            {submitting ? "Creating..." : "Register"}
+                        </Button>
+
+                        <Button className="w-full" type="button" variant="outline" onClick={() => navigate("/")}>
+                            Back to login
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+        </Page>
     );
 }
-
-const styles = {
-    container: {
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        background: "#f4f6f8",
-        padding: 16
-    },
-    form: {
-        width: 360,
-        background: "white",
-        borderRadius: 10,
-        padding: 24,
-        boxShadow: "0 6px 24px rgba(0,0,0,0.08)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 10
-    },
-    label: {fontSize: 14, fontWeight: 600},
-    input: {padding: 10, fontSize: 16},
-    hint: {fontSize: 12, color: "#555", minHeight: 16 },
-    button: {
-        padding: 10,
-        fontSize: 16,
-        border: "none",
-        borderRadius: 6,
-        background: "#0066cc",
-        color: "white",
-        cursor: "pointer",
-        marginTop: 6
-    },
-    error: { background: "#ffe5e5", padding: 10, borderRadius: 6, color: "#a40000" },
-    success: { background: "#e6ffea", padding: 10, borderRadius: 6, color: "#0a6b1c" }
-};
