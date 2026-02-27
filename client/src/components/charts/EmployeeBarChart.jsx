@@ -33,7 +33,11 @@ export default function EmployeeBarChart({ kpis, title = "Employee Personnel Ove
     const labels = kpis.map(k => k.label);
 
     // Values = KPI numbers
-    const values = kpis.map(k => isFiniteNumber(k.yourValue) ? k.yourValue : 0);
+    const values = kpis.map(k =>
+        typeof k.value === "number" && Number.isFinite(k.value)
+            ? k.value
+            : 0
+    );
 
     const data = {
         labels,
@@ -45,6 +49,8 @@ export default function EmployeeBarChart({ kpis, title = "Employee Personnel Ove
                 // optional styling (Chart.js auto-colors if omitted)
                 borderWidth: 2,
                 borderRadius: 8,
+                // borderColor: 'rgb(0,230,255)',
+                backgroundColor: 'rgb(0,119,138)',
             },
         ],
     };

@@ -255,6 +255,7 @@ app.get("/api/peer-groups", auth, async (req, res) => {
 
 app.use("/api/dashboard", auth, dashboardRoutes);
 
+/*
 app.get("/api/dashboard", auth, async (req, res) => {
     try {
         const schoolYrId = Number(req.query.year); // <-- this is SCHOOL_YR_ID now
@@ -307,6 +308,7 @@ app.get("/api/dashboard", auth, async (req, res) => {
         return res.status(500).json({ error: "Server error in /api/dashboard" });
     }
 });
+*/
 
 // DELETE template
 app.delete("/api/", auth, async (req, res) => {//TODO fix URL
