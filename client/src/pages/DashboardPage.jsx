@@ -10,16 +10,10 @@ import Button from "../components/ui/Button";
 import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
 import Select from "../components/ui/Select.jsx";
 
-const YEAR_OPTIONS = [
-    { value: "30", label: "2022" },
-    { value: "31", label: "2023" },
-];
-
-const CATEGORIES = [
-    { id: "overview", label: "Overview" },
-    { id: "personnel", label: "Personnel" },
-    { id: "adminSupport", label: "Admin Support" },
-    { id: "attrition", label: "Enrollment / Attrition" },
+const CATEGORY_OPTIONS = [
+    { value: "enrollment", label: "Enrollment" },
+    { value: "personnel", label: "Personnel" },
+    { value: "adminSupport", label: "Admin support" },
 ];
 
 export default function DashboardPage() {
@@ -93,6 +87,8 @@ export default function DashboardPage() {
     if (!yearId) return <Page>Loading years...</Page>;
     if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
+    const yearOptions = years.map(y => ({ value: y, label: `Year ${y}` }));
+
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-6xl px-6 py-10">
@@ -121,25 +117,19 @@ export default function DashboardPage() {
 
                 {/* Filters */}
                 <div className="mt-6 flex flex-wrap gap-4">
-                    <Select
+                    <Dropdown
+                        label="Category"
                         value={category}
-                        onChange={e => setCategory(e.target.value)}
-                    >
-                        <option>Enrollment</option>
-                        <option>Personnel</option>
-                        <option>Admin support</option>
-                    </Select>
+                        options={CATEGORY_OPTIONS}
+                        onChange={(newValue) => setCategory(newValue)}
+                    />
 
-                    <Select
+                    <Dropdown
+                        label="Year"
                         value={yearId}
-                        onChange={e => setYearId(Number(e.target.value))}
-                    >
-                        {years.map(y => (
-                            <option key={y} value={y}>
-                                Year {y}
-                            </option>
-                        ))}
-                    </Select>
+                        options={yearOptions}
+                        onChange={(newValue) => setYearId(Number(newValue))}
+                    />
                 </div>
 
                 {/* KPI Cards */}
