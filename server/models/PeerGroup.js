@@ -1,17 +1,32 @@
 import mongoose from "mongoose";
+
 const peerGroupSchema = new mongoose.Schema(
     {
-        name: { type: String, required: true },
-
-        criteria: {
-            region: String,
-            groupCode: String,
-            gender: String
+        name: {
+            type: String,
+            required: true,
+            trim: true
         },
 
-        schoolIds: [Number]
+        region: {
+            type: String
+        },
+
+        groupCode: {
+            type: String
+        },
+
+        gender: {
+            type: String
+        },
+
+        schoolIds: [
+            {
+                type: Number
+            }
+        ]
     },
-    { collection: "peergroups" }
+    { collection: "peergroups", timestamps: true }
 );
 
 export default mongoose.model("PeerGroup", peerGroupSchema, "peergroups");
