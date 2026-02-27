@@ -1,8 +1,16 @@
-import mongoose from "mongoose";
+const peerGroupSchema = new mongoose.Schema(
+{
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
 
-const PeerGroupSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    schoolIds: [{ type: String, required: true }],
-});
-
-export default mongoose.model("PeerGroup", PeerGroupSchema);
+  schoolIds: [
+    {
+      type: Number
+    }
+  ]
+},
+{ collection: "peergroups", timestamps: true }
+);
