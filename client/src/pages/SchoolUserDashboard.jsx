@@ -94,7 +94,6 @@ export default function SchoolDashboard() {
                     <option>Admin support</option>
                 </Select>
 
-                {/* ✅ 动态年份 */}
                 <Select
                     value={yearId}
                     onChange={e => setYearId(Number(e.target.value))}
