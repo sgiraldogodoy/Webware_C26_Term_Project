@@ -78,14 +78,6 @@ export default function SchoolDashboard() {
         <>
             <Navbar/>
             <Page>
-                <div className="flex justify-between items-center mb-6">
-                    <button
-                        onClick={() => navigate("/dashboard")}
-                        className="text-blue-600 hover:underline"
-                    >
-                        ← Dashboard
-                    </button>
-                </div>
 
                 <div className="flex gap-4 mb-6">
                     <Select
@@ -122,6 +114,13 @@ export default function SchoolDashboard() {
                     ))}
                 </div>
             </Page>
+            <button
+                className="btn"
+                onClick={() => {
+                    localStorage.removeItem("token");
+                    navigate("/");
+                }}
+            > Log Out</button>
         </>
     );
 }

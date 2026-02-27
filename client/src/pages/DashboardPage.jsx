@@ -31,6 +31,15 @@ export default function DashboardPage() {
 
     if (!user) return <p>Loading...</p>;
 
+    if (user.role === "SCHOOL") {
+        navigate("/school-dashboard");
+        return;
+    }
+
+    if (user.role === "ADMIN") {
+        //navigate to admin dashboard
+    }
+
     return (
         <div style={{ padding: "40px" }}>
             <h1>Dashboard</h1>
