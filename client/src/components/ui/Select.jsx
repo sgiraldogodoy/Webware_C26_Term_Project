@@ -1,14 +1,14 @@
-export default function Select({ className = "", children, ...props }) {
+export default function Select({ className = "", ...props }) {
     return (
         <select
-            className={
-                "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm " +
-                "focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 " +
-                className
-            }
             {...props}
-        >
-            {children}
-        </select>
+            className={[
+                "w-full rounded-lg border px-3 py-2 text-sm",
+                "bg-white text-slate-900 border-slate-300",
+                "dark:bg-slate-900 dark:text-slate-100 dark:border-white/10",
+                "focus:outline-none focus:ring-2 focus:ring-slate-400/40",
+                className,
+            ].join(" ")}
+        />
     );
 }
