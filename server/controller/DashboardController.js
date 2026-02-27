@@ -11,6 +11,16 @@ export async function dashboardController(req, res) {
             category
         });
 
+        console.log("Dashboard response keys:", Object.keys(data || {}));
+        console.log("KPIS isArray?", Array.isArray(data?.kpis), "type:", typeof data?.kpis);
+
+        if (Array.isArray(data?.kpis)) {
+            console.log("KPI count:", data.kpis.length);
+            console.log("First KPI:", data.kpis[0]);
+        } else {
+            console.log("KPIS value:", data?.kpis);
+        }
+
         console.log("Query params:", schoolId, yearId, category);
         res.json(data);
 

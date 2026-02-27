@@ -105,6 +105,8 @@ export default function RegisterPage() {
         }
     }
 
+    // const schoolOptions = schools.map(y => ({ value: y, label: `School ${y}` }));
+
     return (
         <Page>
             <Card className="w-full max-w-md">
