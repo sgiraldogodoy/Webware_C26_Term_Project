@@ -11,9 +11,9 @@ import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
 import Select from "../components/ui/Select.jsx";
 
 const CATEGORY_OPTIONS = [
-    { value: "enrollment", label: "Enrollment" },
-    { value: "personnel", label: "Personnel" },
-    { value: "adminSupport", label: "Admin support" },
+    { value: "Enrollment", label: "Enrollment" },
+    { value: "Personnel", label: "Personnel" },
+    { value: "Admin support", label: "Admin support" },
 ];
 
 export default function DashboardPage() {
