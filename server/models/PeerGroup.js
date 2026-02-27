@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const peerGroupSchema = new mongoose.Schema(
 {
   name: {
@@ -14,3 +16,5 @@ const peerGroupSchema = new mongoose.Schema(
 },
 { collection: "peergroups", timestamps: true }
 );
+
+export default mongoose.model("PeerGroup", peerGroupSchema);
