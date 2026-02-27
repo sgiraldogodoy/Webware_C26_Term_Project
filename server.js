@@ -12,6 +12,7 @@ import User from "./server/models/User.js";
 import School from "./server/models/School.js";
 import dashboardRoutes from "./server/routes/DashboardRoutes.js";
 import cors from "cors";
+import loginRoutes from "./server/routes/LoginRoutes.js";
 
 dotenv.config();
 
@@ -62,16 +63,6 @@ function auth(req, res, next) {
 
 /*----------------------ENDPOINTS-----------------------*/
 
-// GET template
-app.get("/api", auth, async (req, res) => {//TODO fix URL
-
-});
-
-// POST template
-app.post("/api/",auth, async (req, res) => {//TODO fix URL
-
-});
-
 /**
  * Auth test endpoint - returns user info from JWT
  */
@@ -106,125 +97,10 @@ app.get("/api/schools/public", async (req, res) => {
     }
 });
 
-/** USER ENDPOINTS
- * Registration rules:
- * - Username: 3-30 chars, letters/numbers/underscores, unique
- * - Password: min 8 chars, at least 1 letter and 1 number
- * - Role: "ADMIN" or "SCHOOL" (default SCHOOL)
- * - If role is SCHOOL, schoolId is required. If ADMIN, schoolId must be null.
- *
- * Responses:
- * - 201 Created: { message: "User created", id: user._id }
- * - 400 Bad Request: { error: "Validation error message" }
- * - 409 Conflict: { error: "Username already taken." }
- * - 500 Server Error: { error: "Server error" }
- *
- * Login rules:
- * - Validate credentials
- * - On success, return JWT token and role
- * - 401 Unauthorized: { error: "Invalid credentials" }
- */
-app.post("/api/register", async (req, res) => {
-    try {
-        const {username: usernameRaw, password, schoolId} = req.body;
+app.use("/api/dashboard", auth, dashboardRoutes);
 
-        // Validate username
-        const u = validateUsername(usernameRaw);
-        if (!u.ok) return res.status(400).json({ error: u.message });
+app.use("/api", auth, loginRoutes);
 
-        // Validate password
-        const p = validatePassword(password);
-        if (!p.ok) return res.status(400).json({ error: p.message });
-
-        const finalRole = "SCHOOL";
-
-        // Expect schoolId to be a number (or numeric string)
-        const schoolIdNum = Number(schoolId);
-
-        if (!Number.isInteger(schoolIdNum) || schoolIdNum <= 0) {
-            return res.status(400).json({error: "Invalid school selection."});
-        }
-
-        // confirm school exists and active
-        const school = await School.findOne({ID: schoolIdNum, ACTIVE_INT: "Y"}).lean();
-        if (!school) {
-            return res.status(400).json({error: "Selected school not found."});
-        }
-
-        // Uniqueness check (fast fail)
-        const existing = await User.findOne({ username: u.username }).lean();
-        if (existing) {
-            return res.status(409).json({ error: "Username already taken." });
-        }
-
-        // Hash password
-        const hashed = await bcrypt.hash(password, 10);
-
-        const user = await User.create({
-            username: u.username,
-            password: hashed,
-            role: finalRole,
-            schoolId: schoolIdNum
-        });
-
-        return res.status(201).json({ message: "User created", id: user._id });
-    } catch (err) {
-        // Handle unique index race condition
-        if (err?.code === 11000) {
-            return res.status(409).json({ error: "Username already taken." });
-        }
-        console.error(err);
-        return res.status(500).json({ error: "Server error" });
-    }
-});
-
-// POST User
-app.post("/api/login", async (req, res) => {
-    if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET missing");
-    }
-
-    const { username, password } = req.body;
-
-    const normalizedUsername = (username ?? "").trim().toLowerCase();
-    const user = await User.findOne({ username: normalizedUsername });
-
-    if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    const token = jwt.sign(
-        {
-            id: user._id,
-            role: user.role,
-            schoolId: user.schoolId
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-    );
-
-    res.json({
-        token,
-        role: user.role
-    });
-});
-
-
-// DELETE template
-app.delete("/api/", auth, async (req, res) => {//TODO fix URL
-
-});
-
-// PUT template
-app.put("/api/",auth, async (req, res) => {//TODO fix URL
-
-});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -236,7 +112,6 @@ app.use((req, res, next) => {
     res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
 
-app.use("/api/dashboard", auth, dashboardRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
