@@ -36,6 +36,18 @@ export default function DashboardPage() {
             <h1>Dashboard</h1>
             <p>Role: {user.role}</p>
             <p>School ID: {user.schoolId || "Admin user"}</p>
+
+
+            {user.role === "SCHOOL" && (
+                <button onClick={() => navigate("/school-dashboard")}>
+                    Student Dashboard
+                </button>
+            )}
+
+<br/>
+
+
+
             <button
                 className="btn"
                 onClick={() => {

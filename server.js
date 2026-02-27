@@ -10,11 +10,19 @@ import {validateUsername, validatePassword} from "./server/registerValidator.js"
 //Import Schemas
 import User from "./server/models/User.js";
 import School from "./server/models/School.js";
+import dashboardRoutes from "./server/routes/DashboardRoutes.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+
+// app.use(cors({
+//     origin: "http://localhost:5173",
+//     credentials: true
+// }));
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -227,6 +235,8 @@ app.use((req, res, next) => {
     if (req.path.startsWith("/api")) return next();
     res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
 });
+
+app.use("/api/dashboard", auth, dashboardRoutes);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
