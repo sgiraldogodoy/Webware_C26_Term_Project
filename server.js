@@ -14,12 +14,21 @@ import Submission from "./server/models/Submission.js";
 import EmployeePersonnel from "./server/models/EmployeePersonnel.js";
 import EmployeeAdminSupport from "./server/models/EmployeeAdminSupport.js";
 import School from "./server/models/School.js";
+import dashboardRoutes from "./server/routes/DashboardRoutes.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+
+// app.use(cors({
+//     origin: "http://localhost:5173",
+//     credentials: true
+// }));
+
+app.use(express.json());
 app.use(express.static("public"));
 
 mongoose.connect(process.env.MONGO_URI)
@@ -179,10 +188,14 @@ app.post("/api/login", async (req, res) => {
         throw new Error("JWT_SECRET missing");
     }
 
+
     const { username, password } = req.body;
 
     const normalizedUsername = (username ?? "").trim().toLowerCase();
     const user = await User.findOne({ username: normalizedUsername });
+
+    console.log("MONGO_URI:", process.env.MONGO_URI);
+    console.log("login username:", normalizedUsername);
 
     if (!user) {
         return res.status(401).json({ error: "Invalid credentials" });
@@ -240,6 +253,8 @@ app.get("/api/peer-groups", auth, async (req, res) => {
     res.json(groups.map(g => ({ id: g._id.toString(), name: g.name })));
 });
 
+app.use("/api/dashboard", auth, dashboardRoutes);
+
 app.get("/api/dashboard", auth, async (req, res) => {
     try {
         const schoolYrId = Number(req.query.year); // <-- this is SCHOOL_YR_ID now
@@ -278,45 +293,20 @@ app.get("/api/dashboard", auth, async (req, res) => {
 
         res.json({
             kpis,
-            charts: {
-                bar: {
-                    labels: ["Total Employees", "Full-Time Employees", "POC Employees", "FTE Only"],
-                    your: kpis.map(k => k.yourValue),
-                    peer: [null, null, null, null] // add peer after you implement peer groups
-                },
-                line: null
-            }
+            // charts: {
+            //     bar: {
+            //         labels: ["Total Employees", "Full-Time Employees", "POC Employees", "FTE Only"],
+            //         your: kpis.map(k => k.yourValue),
+            //         peer: [null, null, null, null] // add peer after you implement peer groups
+            //     },
+            //     line: null
+            // }
         });
     } catch (err) {
         console.error("Dashboard route error:", err);
         return res.status(500).json({ error: "Server error in /api/dashboard" });
     }
 });
-
-/*
-app.get("/api/dashboard", auth, async (req, res) => {
-
-    console.log("Dashboard request received:", req.query);
-
-    res.json({
-        kpis: [
-            { label: "Total Employees", yourValue: 214, peerValue: 198, delta: 16 }
-        ],
-        charts: {
-            bar: {
-                labels: ["Employees"],
-                your: [214],
-                peer: [198]
-            },
-            line: {
-                labels: ["2022", "2023", "2024"],
-                your: [200, 210, 214],
-                peer: [190, 195, 198]
-            }
-        }
-    });
-});
-*/
 
 // DELETE template
 app.delete("/api/", auth, async (req, res) => {//TODO fix URL

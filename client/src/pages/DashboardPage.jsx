@@ -7,7 +7,8 @@ import Button from "../components/ui/Button";
 
 
 // import components
-import EmployeeBarChart from "../components/EmployeeBarChart";
+import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
+import Select from "../components/ui/Select.jsx";
 
 const YEAR_OPTIONS = [
     { value: "30", label: "2022" },
@@ -25,28 +26,24 @@ export default function DashboardPage() {
     const [user, setUser] = useState(null);
 
     // filters (year, category, peer group, compare mode)
-    const [year, setYear] = useState("30");
-    const [category, setCategory] = useState("overview");
-    const [peerGroupId, setPeerGroupId] = useState("default");
-    const [compareMode, setCompareMode] = useState("avg"); // avg | median | range
-
-    // data for UI
-    const [peerGroups, setPeerGroups] = useState([]);
     const [dashboardData, setDashboardData] = useState(null);
-    const [loadingDash, setLoadingDash] = useState(false);
-    const [dashError, setDashError] = useState("");
+    const [category, setCategory] = useState("Enrollment");
+    const [yearId, setYearId] = useState(null);
+    const [years, setYears] = useState([]);
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
     const token = useMemo(() => localStorage.getItem("token"), []);
 
     // make sure user logged in
     useEffect(() => {
+        const token = localStorage.getItem("token");
+
         if (!token) {
             navigate("/");
             return;
         }
 
-        // fetch user info
         fetch("/api/auth/me", {
             headers: { Authorization: `Bearer ${token}` }
         })
@@ -59,191 +56,126 @@ export default function DashboardPage() {
                 localStorage.removeItem("token");
                 navigate("/");
             });
-    }, [navigate, token]);
+    }, [navigate]);
 
-    // fetch peer groups (once)
     useEffect(() => {
-        if (!token) return;
+        if (!user) return;
 
-        fetch("/api/peer-groups", {
+        const token = localStorage.getItem("token");
+
+        fetch("/api/dashboard/years", {
             headers: { Authorization: `Bearer ${token}` }
         })
-            .then(res => (res.ok ? res.json() : []))
+            .then(res => res.json())
             .then(data => {
-                // data should be like [{id, name}]
-                setPeerGroups(data || []);
-                // default peer group?
-                if ((data || []).length > 0 && peerGroupId === "default") {
-                    setPeerGroupId(data[0].id);
+                setYears(data);
+                if (data.length > 0) {
+                    setYearId(data[0]);
                 }
             })
-            .catch(() => {
-                setPeerGroups([]);
-            });
-    }, [token]);
+            .catch(() => setError("Failed to load years."));
+    }, [user]);
 
-    // fetch dashboard data whenever filters change
     useEffect(() => {
-        if (!token || !user) return;
+        if (!user || !yearId) return;
 
-        setLoadingDash(true);
-        setDashError("");
-        setDashboardData(null);
+        const token = localStorage.getItem("token");
 
-        // create query params based on filters
-        const params = new URLSearchParams({
-            year,
-            category,
-            peerGroupId: peerGroupId === "default" ? "" : peerGroupId,
-            compare: compareMode
-        });
-
-        fetch(`/api/dashboard?${params.toString()}`, {
+        fetch(`/api/dashboard?yearId=${yearId}&category=${category}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
-            // .then(res => {
-            //     if (!res.ok) throw new Error("Failed to load dashboard data");
-            //     return res.json();
-            // })
-            .then(async (res) => {
-                const body = await res.json().catch(() => ({}));
-                if (!res.ok) {
-                    throw new Error(body.error || `Failed to load dashboard data (${res.status})`);
-                }
-                return body;
-            })
+            .then(res => res.json())
             .then(data => setDashboardData(data))
-            .catch(err => setDashError(err.message || "Dashboard error"))
-            .finally(() => setLoadingDash(false));
-    }, [token, user, year, category, peerGroupId, compareMode]);
+            .catch(() => setError("Failed to load dashboard data."));
+    }, [user, category, yearId]);
 
-    if (!user) return <p>Loading...</p>;
+    if (!user) return <Page>Loading user...</Page>;
+    if (!yearId) return <Page>Loading years...</Page>;
+    if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
     return (
-        <Page>
-        <div style={{ padding: "32px", maxWidth: "1100px", margin: "0 auto" }}>
-            {/* Header row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <div>
-                    <h1 style={{ margin: 0 }}>Dashboard</h1>
-                    <div style={{ opacity: 0.8 }}>
-                        Role: {user.role} · School: {user.schoolId || "Admin"}
+        <Page className="items-start justify-center">
+            <div className="w-full max-w-6xl px-6 py-10">
+
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-50">
+                            Dashboard
+                        </h1>
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                            Role: {user.role} · School: {user.schoolId || "Admin"}
+                        </p>
                     </div>
+
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            localStorage.removeItem("token");
+                            navigate("/");
+                        }}
+                    >
+                        Log Out
+                    </Button>
                 </div>
 
-                <button
-                    className="btn"
-                    onClick={() => {
-                        localStorage.removeItem("token");
-                        navigate("/");
-                    }}
-                >
-                    Log Out
-                </button>
-            </div>
-
-            {/* Filters */}
-            <div style={{ display: "flex", gap: "12px", marginTop: "20px", flexWrap: "wrap" }}>
-                <label>
-                    Year{" "}
-                    <Dropdown
-                        value={year}
-                        options={YEAR_OPTIONS}
-                        onChange={setYear}
-                        label="Select year"
-                    />
-                </label>
-
-                <label>
-                    Peer Group{" "}
-                    <select value={peerGroupId} onChange={e => setPeerGroupId(e.target.value)}>
-                        {peerGroups.length === 0 ? (
-                            <option value="default">Default Peer Group</option>
-                        ) : (
-                            peerGroups.map(pg => (
-                                <option key={pg.id} value={pg.id}>{pg.name}</option>
-                            ))
-                        )}
-                    </select>
-                </label>
-
-                <label>
-                    Compare{" "}
-                    <select value={compareMode} onChange={e => setCompareMode(e.target.value)}>
-                        <option value="avg">Average</option>
-                        <option value="median">Median</option>
-                        <option value="range">Range</option>
-                    </select>
-                </label>
-            </div>
-
-            {/* Category tabs */}
-            <div style={{ display: "flex", gap: "8px", marginTop: "16px", flexWrap: "wrap" }}>
-                {CATEGORIES.map(c => (
-                    <button
-                        key={c.id}
-                        onClick={() => setCategory(c.id)}
-                        className="btn"
-                        style={{
-                            opacity: category === c.id ? 1 : 0.7,
-                            border: category === c.id ? "2px solid #333" : "1px solid #aaa",
-                        }}
+                {/* Filters */}
+                <div className="mt-6 flex flex-wrap gap-4">
+                    <Select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
                     >
-                        {c.label}
-                    </button>
-                ))}
-            </div>
+                        <option>Enrollment</option>
+                        <option>Personnel</option>
+                        <option>Admin support</option>
+                    </Select>
 
-            {/* Data */}
-            <div style={{ marginTop: "24px" }}>
-                {loadingDash && <p>Loading dashboard...</p>}
-                {dashError && <p style={{ color: "crimson" }}>{dashError}</p>}
-
-                {/* KPI Tiles */}
-                {dashboardData?.kpis && (
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                            gap: "12px",
-                            marginBottom: "20px"
-                        }}
+                    <Select
+                        value={yearId}
+                        onChange={e => setYearId(Number(e.target.value))}
                     >
-                        {dashboardData.kpis.map((kpi, idx) => (
-                            <div key={idx} style={{ border: "1px solid #ddd", borderRadius: "10px", padding: "12px" }}>
-                                <div style={{ fontWeight: 600 }}>{kpi.label}</div>
-                                <div style={{ fontSize: "28px", marginTop: "6px" }}>{kpi.yourValue ?? "—"}</div>
-                                <div style={{ opacity: 0.8 }}>
-                                    Peer: {kpi.peerValue ?? "—"}{" "}
-                                    {typeof kpi.delta === "number" ? (
-                                        <span>· Δ {kpi.delta >= 0 ? "+" : ""}{kpi.delta}</span>
-                                    ) : null}
-                                </div>
-                            </div>
+                        {years.map(y => (
+                            <option key={y} value={y}>
+                                Year {y}
+                            </option>
                         ))}
-                    </div>
-                )}
+                    </Select>
+                </div>
 
-                {/* Charts (placeholders for now) */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <div style={{
-                        border: "1px solid #ddd",
-                        borderRadius: "10px",
-                        padding: "12px",
-                        minHeight: "300px"
-                    }}>
+                {/* KPI Cards */}
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {dashboardData.kpis.map((kpi, i) => (
+                        <Card key={i}>
+                            <CardHeader>
+                                <CardTitle>{kpi.label}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                                    {kpi.value}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Charts */}
+                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <Card className="p-4">
                         <EmployeeBarChart kpis={dashboardData?.kpis} />
-                    </div>
+                    </Card>
 
-                    <div style={{ border: "1px solid #ddd", borderRadius: "10px", padding: "12px", minHeight: "260px" }}>
-                        <div style={{ fontWeight: 600, marginBottom: "8px" }}>Line Chart</div>
-                        <div style={{ opacity: 0.75 }}>
+                    <Card className="p-4">
+                        <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-2">
+                            Line Chart
+                        </h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-300">
                             Replace this with Chart.js line chart using dashboardData.charts.line
-                        </div>
-                    </div>
+                        </p>
+                    </Card>
+
                 </div>
             </div>
-        </div>
         </Page>
     );
 }

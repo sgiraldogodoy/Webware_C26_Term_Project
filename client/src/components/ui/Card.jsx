@@ -4,9 +4,9 @@ export function Card({ className = "", ...props }) {
             className={[
                 "rounded-2xl",
                 // light
-                "bg-white/85 ring-1 ring-slate-200 shadow-lg",
+                "bg-white/50 ring-1 ring-slate-200 shadow-lg",
                 // dark
-                "dark:bg-slate-900/55 dark:ring-white/10 dark:shadow-black/40 dark:text-slate-50",
+                "dark:bg-slate-900/50 dark:ring-white/10 dark:shadow-black/40 dark:text-slate-50",
                 // blur
                 "backdrop-blur-md",
                 className,

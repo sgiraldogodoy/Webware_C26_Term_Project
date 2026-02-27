@@ -12,4 +12,4 @@ const schoolSchema = new mongoose.Schema(
     {collection: "school"}
 );
 
-export default mongoose.model("School", schoolSchema);
+export default mongoose.model("School", schoolSchema, "school");

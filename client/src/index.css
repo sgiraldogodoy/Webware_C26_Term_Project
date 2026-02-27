@@ -10,7 +10,7 @@
                 radial-gradient(700px 450px at 80% 20%, rgba(42, 168, 255, 0.22), transparent 60%),
                 radial-gradient(900px 600px at 50% 90%, rgba(24, 199, 193, 0.10), transparent 60%),
 
-                linear-gradient(35deg, rgba(31, 248, 240, 0.68), transparent 55%),
+                linear-gradient(35deg, rgba(31, 248, 240, 0.84), transparent 55%),
                 linear-gradient(65deg, rgba(42, 168, 255, 0.66), transparent 60%),
                 /*linear-gradient(160deg, rgba(192, 132, 252, 0.93), transparent 55%),*/ #a2b0bd; /* dark base makes it vibrant */
     }
@@ -24,7 +24,7 @@
                 radial-gradient(900px 600px at 50% 90%, rgba(24, 199, 193, 0.10), transparent 60%),
 
                 /*linear-gradient(250deg, rgba(31, 248, 240, 0.68), transparent 40%),*/
-                linear-gradient(35deg, rgba(31, 248, 240, 0.68), transparent 55%),
+                linear-gradient(35deg, rgba(31, 248, 240, 0.84), transparent 55%),
                 linear-gradient(65deg, rgba(42, 168, 255, 0.66), transparent 60%),
                 /*linear-gradient(1x5deg, rgba(192, 132, 252, 0.93), transparent 55%),*/
                 #0b2c4c; /* dark base makes it vibrant */
