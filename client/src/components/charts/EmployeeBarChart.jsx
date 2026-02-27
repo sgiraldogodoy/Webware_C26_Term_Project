@@ -20,6 +20,12 @@ ChartJS.register(
     Title
 );
 
+// dark or light mode
+const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const textColor = isDark ? "#f1f5f9" : "#334155";
+const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+
 function isFiniteNumber(x) {
     return typeof x === "number" && Number.isFinite(x);
 }
@@ -64,6 +70,7 @@ export default function EmployeeBarChart({ kpis, title = "Employee Personnel Ove
             title: {
                 display: true,
                 text: title,
+                // color: textColor
             },
 
             tooltip: {
