@@ -2,14 +2,10 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import express from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import path from "path";
 import { fileURLToPath } from "url";
-import {validateUsername, validatePassword} from "./server/registerValidator.js"
 
 //Import Schemas
-import User from "./server/models/User.js";
-import School from "./server/models/School.js";
 import dashboardRoutes from "./server/routes/DashboardRoutes.js";
 import cors from "cors";
 import loginRoutes from "./server/routes/LoginRoutes.js";
@@ -70,36 +66,9 @@ app.get("/api/auth/me", auth, async (req, res) => {
     res.json(req.user);
 });
 
-/**
- * Public endpoint to get list of schools. No auth required.
- */
-app.get("/api/schools/public", async (req, res) => {
-    try {
-        const query = { ACTIVE_INT: "Y" }; // remove if you don't want active filtering
-
-        const schools = await School.find(query)
-            .select({ ID: 1, NAME_TX: 1, REGION_CD: 1, GROUP_CD: 1, GENDER_COMPOSITION_CD: 1 })
-            .sort({ NAME_TX: 1 })
-            .lean();
-
-        res.json(
-            schools.map((s) => ({
-                id: s.ID,
-                name: s.NAME_TX,
-                region: s.REGION_CD,
-                group: s.GROUP_CD,
-                gender: s.GENDER_COMPOSITION_CD,
-            }))
-        );
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({error: "Failed to load schools."});
-    }
-});
-
 app.use("/api/dashboard", auth, dashboardRoutes);
 
-app.use("/api", auth, loginRoutes);
+app.use("/api", loginRoutes);
 
 
 const __filename = fileURLToPath(import.meta.url);

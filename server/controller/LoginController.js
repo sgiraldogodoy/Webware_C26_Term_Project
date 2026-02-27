@@ -1,14 +1,13 @@
-import {registerService, loginService} from "../services/LoginService.js";
-
+import {registerService, loginService, getSchoolsService} from "../services/LoginService.js";
 function respondData(res, result) {
-    if (result.error) {
-        return res.status(result.status).json({ error: result.error });
-    }
-    return res.status(result.status).json({ message: result.message, id: result.id });
+    const { status, ...payload } = result;
+    if (payload.error) return res.status(status).json({ error: payload.error });
+    return res.status(status).json(payload);
 }
 export async function registerController(req, res) {
     try {
         const {username: usernameRaw, password, schoolId} = req.body;
+        if (!usernameRaw || !password) return res.status(400).json({ error: "Missing username or password." });
         const result = await registerService({usernameRaw, password, schoolId});
 
         return respondData(res, result);
@@ -25,11 +24,22 @@ export async function registerController(req, res) {
 export async function loginController(req, res) {
     try {
         const {username: usernameRaw, password} = req.body;
+        if (!usernameRaw || !password) return res.status(400).json({ error: "Missing username or password." });
         const result = await loginService({usernameRaw, password});
 
         return respondData(res, result);
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Server error" });
+    }
+}
+
+export async function getSchoolsController(req, res) {
+    try {
+        const result = await getSchoolsService();
+        return respondData(res, result);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({error: "Failed to load schools."});
     }
 }

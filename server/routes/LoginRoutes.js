@@ -1,7 +1,12 @@
 import express from "express";
-import {loginController, registerController} from "../controller/LoginController.js";
+import {getSchoolsController, loginController, registerController} from "../controller/LoginController.js";
 
 const router = express.Router();
+
+/**
+ * Public endpoint to get list of schools. No auth required.
+ */
+router.get("/schools/public", getSchoolsController);
 
 /** USER ENDPOINTS
  * Registration rules:
