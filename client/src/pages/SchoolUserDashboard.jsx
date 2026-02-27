@@ -5,6 +5,7 @@ import Button from "../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import Alert from "../components/ui/Alert";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navigation/Navbar.jsx"
 
 export default function SchoolDashboard() {
     const [user, setUser] = useState(null);
@@ -74,50 +75,53 @@ export default function SchoolDashboard() {
     if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
     return (
-        <Page>
-            <div className="flex justify-between items-center mb-6">
-                <button
-                    onClick={() => navigate("/dashboard")}
-                    className="text-blue-600 hover:underline"
-                >
-                    ← Dashboard
-                </button>
-            </div>
+        <>
+            <Navbar/>
+            <Page>
+                <div className="flex justify-between items-center mb-6">
+                    <button
+                        onClick={() => navigate("/dashboard")}
+                        className="text-blue-600 hover:underline"
+                    >
+                        ← Dashboard
+                    </button>
+                </div>
 
-            <div className="flex gap-4 mb-6">
-                <Select
-                    value={category}
-                    onChange={e => setCategory(e.target.value)}
-                >
-                    <option>Enrollment</option>
-                    <option>Personnel</option>
-                    <option>Admin support</option>
-                </Select>
+                <div className="flex gap-4 mb-6">
+                    <Select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
+                    >
+                        <option>Enrollment</option>
+                        <option>Personnel</option>
+                        <option>Admin support</option>
+                    </Select>
 
-                <Select
-                    value={yearId}
-                    onChange={e => setYearId(Number(e.target.value))}
-                >
-                    {years.map(y => (
-                        <option key={y} value={y}>
-                            Year {y}
-                        </option>
+                    <Select
+                        value={yearId}
+                        onChange={e => setYearId(Number(e.target.value))}
+                    >
+                        {years.map(y => (
+                            <option key={y} value={y}>
+                                Year {y}
+                            </option>
+                        ))}
+                    </Select>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {dashboardData.kpis.map((kpi, i) => (
+                        <Card key={i}>
+                            <CardHeader>
+                                <CardTitle>{kpi.label}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-2xl font-bold">{kpi.value}</p>
+                            </CardContent>
+                        </Card>
                     ))}
-                </Select>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {dashboardData.kpis.map((kpi, i) => (
-                    <Card key={i}>
-                        <CardHeader>
-                            <CardTitle>{kpi.label}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-2xl font-bold">{kpi.value}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </Page>
+                </div>
+            </Page>
+        </>
     );
 }
