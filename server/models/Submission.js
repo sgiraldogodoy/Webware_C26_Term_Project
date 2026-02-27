@@ -14,25 +14,28 @@ const submissionSchema = new mongoose.Schema(
             index: true
         },
 
+        category: {
+            type: String,
+            required: true
+        },
+
+        metricKey: {
+            type: String,
+            required: true
+        },
+
+        metricValue: {
+            type: Number,
+            default: 0
+        },
+
         status: {
             type: String,
             enum: ["draft", "submitted"],
             default: "draft"
         },
 
-        submittedAt: Date,
-
-        categories: [
-            {
-                name: String,
-                metrics: [
-                    {
-                        key: String,
-                        value: Number
-                    }
-                ]
-            }
-        ]
+        submittedAt: Date
     },
     { collection: "submissions", timestamps: true }
 );
