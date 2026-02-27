@@ -50,7 +50,7 @@ export default function EmployeeBarChart({ kpis, title = "Employee Personnel Ove
                 borderWidth: 2,
                 borderRadius: 8,
                 // borderColor: 'rgb(0,230,255)',
-                backgroundColor: 'rgb(0,119,138)',
+                backgroundColor: 'rgb(3,68,122)',
             },
         ],
     };
