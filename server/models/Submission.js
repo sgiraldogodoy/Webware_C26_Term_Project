@@ -1,43 +1,32 @@
 import mongoose from "mongoose";
 
 const submissionSchema = new mongoose.Schema(
-    {
-        schoolId: {
-            type: Number,
-            required: true,
-            index: true
-        },
-
-        yearId: {
-            type: Number,
-            required: true,
-            index: true
-        },
-
-        category: {
-            type: String,
-            required: true
-        },
-
-        metricKey: {
-            type: String,
-            required: true
-        },
-
-        metricValue: {
-            type: Number,
-            default: 0
-        },
-
-        status: {
-            type: String,
-            enum: ["draft", "submitted"],
-            default: "draft"
-        },
-
-        submittedAt: Date
+  {
+    schoolId: {
+      type: Number,
+      required: true,
+      index: true
     },
-    { collection: "submissions", timestamps: true }
+
+    yearId: {
+      type: Number,
+      required: true,
+      index: true
+    },
+
+    status: {
+      type: String,
+      enum: ["draft", "submitted"],
+      default: "draft"
+    },
+
+    submittedAt: {
+      type: Date
+    }
+  },
+  { collection: "submissions", timestamps: true }
 );
 
-export default mongoose.model("Submission", submissionSchema, "submissions");
+submissionSchema.index({ schoolId: 1, yearId: 1 }, { unique: true });
+
+export default mongoose.model("Submission", submissionSchema);
