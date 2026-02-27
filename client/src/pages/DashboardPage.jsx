@@ -89,6 +89,15 @@ export default function DashboardPage() {
 
     const yearOptions = years.map(y => ({ value: y, label: `Year ${y}` }));
 
+    if (user.role === "SCHOOL") {
+        navigate("/school-dashboard");
+        return;
+    }
+
+    if (user.role === "ADMIN") {
+        //navigate to admin dashboard
+    }
+
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-6xl px-6 py-10">
