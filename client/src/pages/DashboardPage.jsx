@@ -1,8 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Page from "../components/ui/Page";
+import Dropdown from "../components/ui/Dropdown";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/Card";
+import Button from "../components/ui/Button";
+
 
 // import components
 import EmployeeBarChart from "../components/EmployeeBarChart";
+
+const YEAR_OPTIONS = [
+    { value: "30", label: "2022" },
+    { value: "31", label: "2023" },
+];
 
 const CATEGORIES = [
     { id: "overview", label: "Overview" },
@@ -110,6 +120,7 @@ export default function DashboardPage() {
     if (!user) return <p>Loading...</p>;
 
     return (
+        <Page>
         <div style={{ padding: "32px", maxWidth: "1100px", margin: "0 auto" }}>
             {/* Header row */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
@@ -135,11 +146,12 @@ export default function DashboardPage() {
             <div style={{ display: "flex", gap: "12px", marginTop: "20px", flexWrap: "wrap" }}>
                 <label>
                     Year{" "}
-                    <select value={year} onChange={e => setYear(e.target.value)}>
-                        {/* replace with years from your SCHOOL_YEAR table if you want */}
-                        <option value="30">2022</option>
-                        <option value="31">2023</option>
-                    </select>
+                    <Dropdown
+                        value={year}
+                        options={YEAR_OPTIONS}
+                        onChange={setYear}
+                        label="Select year"
+                    />
                 </label>
 
                 <label>
@@ -232,5 +244,6 @@ export default function DashboardPage() {
                 </div>
             </div>
         </div>
+        </Page>
     );
 }

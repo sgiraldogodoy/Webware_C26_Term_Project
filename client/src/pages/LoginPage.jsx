@@ -44,6 +44,7 @@ export default function LoginPage() {
     }
 
     return (
+
         <Page>
             <Card className="w-full max-w-md">
                 <CardHeader>

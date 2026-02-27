@@ -9,7 +9,7 @@ export default function Button({
         "focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
-        primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-600",
+        primary: "bg-sky-900 dark:bg-sky-700 text-white hover:bg-sky-700 dark:hover:bg-sky-500 focus:ring-sky-600",
         secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400",
         outline: "border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus:ring-gray-400",
         danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
