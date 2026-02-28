@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import SchoolDashboard from "./pages/SchoolUserDashboard.jsx";
+import CompareDashboard from "./pages/CompareDashboard.jsx";
 
 export default function App() {
     return (
