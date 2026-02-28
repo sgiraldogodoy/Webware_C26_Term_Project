@@ -12,6 +12,7 @@ export default function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/school-dashboard" element={<SchoolDashboard />} />
+                <Route path="/compare-dashboard" element={<CompareDashboard />} />
             </Routes>
         </BrowserRouter>
     );
