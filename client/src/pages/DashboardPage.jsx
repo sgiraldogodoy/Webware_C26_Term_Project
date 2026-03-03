@@ -2,14 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Page from "../components/ui/Page";
 import Dropdown from "../components/ui/Dropdown";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/Card";
-import Button from "../components/ui/Button";
+import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 
 
 // import components
 import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
+import EmployeeBarChartData from "../components/charts/EmployeeBarChartData.jsx";
 import Select from "../components/ui/Select.jsx";
 import Navbar from "../components/Navigation/Navbar.jsx";
+import TrendLineChart from "../components/charts/TrendLineChart.jsx";
 
 const CATEGORY_OPTIONS = [
     { value: "Enrollment", label: "Enrollment" },
@@ -103,6 +104,13 @@ export default function SchoolDashboard() {
     }
 */
 
+    console.log("dashboardData:", dashboardData);
+    console.log("BAR CANDIDATES:", {
+        chartData: dashboardData?.charts,
+        chartDataBar: dashboardData?.charts?.bar,
+        chartsBar: dashboardData?.charts?.bar,
+    });
+
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-6xl px-6 py-10">
@@ -166,16 +174,18 @@ export default function SchoolDashboard() {
                 <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     <Card className="p-4">
-                        <EmployeeBarChart kpis={dashboardData?.kpis} />
+                        {/*<EmployeeBarChart kpis={dashboardData?.kpis} />*/}
+                        {/*<EmployeeBarChartData chartData={dashboardData?.chartData} />*/}
+                        <EmployeeBarChartData data={dashboardData?.charts?.bar} title="Enrollment Overview" />
                     </Card>
 
+                    {/*<Card className="p-4">*/}
+                    {/*    /!*<TrendLineChart data={dashboardData?.chartData || dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />*!/*/}
+                    {/*    <TrendLineChart data={dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />*/}
+                    {/*</Card>*/}
+
                     <Card className="p-4">
-                        <h3 className="font-semibold text-slate-900 dark:text-slate-50 mb-2">
-                            Line Chart
-                        </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-300">
-                            Replace this with Chart.js line chart using dashboardData.charts.line
-                        </p>
+                        <TrendLineChart data={dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />
                     </Card>
 
                 </div>

@@ -47,13 +47,30 @@ async function buildEnrollmentDashboard(schoolId, yearId) {
             { label: "Students Not Returning", value: data.studentsNotReturning || 0 },
             { label: "Students Graduated", value: data.studentsGraduated || 0 }
         ],
-        chartData: {
-            labels: ["Added", "Not Returning", "Graduated"],
-            values: [
-                data.studentsAdded || 0,
-                data.studentsNotReturning || 0,
-                data.studentsGraduated || 0
-            ]
+        charts: {
+            bar: {
+                labels: ["Added", "Not Returning", "Graduated"],
+                datasets: [
+                    {
+                        label: "Students",
+                        data: [
+                            data.studentsAdded || 0,
+                            data.studentsNotReturning || 0,
+                            data.studentsGraduated || 0
+                        ]
+                    }
+                ]
+            },
+
+            // line: {
+            //     labels: ["2021", "2022", "2023"],
+            //     datasets: [
+            //         {
+            //             label: "Total Students",
+            //             data: [100, 120, 130]
+            //         }
+            //     ]
+            // }
         }
     };
 }
@@ -85,13 +102,20 @@ async function buildPersonnelDashboard(schoolId, yearId) {
             { label: "FTEs", value: data.ftEmployees || 0 },
             { label: "Subcontractors", value: data.subcontractors || 0 }
         ],
-        chartData: {
-            labels: ["Total", "FTE", "Subcontractors"],
-            values: [
-                data.totalEmployees || 0,
-                data.ftEmployees || 0,
-                data.subcontractors || 0
-            ]
+        charts: {
+            bar: {
+                labels: ["Total", "FTE", "Subcontractors"],
+                datasets: [
+                    {
+                        label: "Your School",
+                        data: [
+                            data.totalEmployees || 0,
+                            data.ftEmployees || 0,
+                            data.subcontractors || 0
+                        ]
+                    }
+                ]
+            }
         }
     };
 }
@@ -125,12 +149,19 @@ async function buildAdminSupportDashboard(schoolId, yearId) {
             { label: "Exempt FTE", value: data.exempt || 0 },
             { label: "Non-Exempt FTE", value: data.nonExempt || 0 }
         ],
-        chartData: {
-            labels: ["Exempt", "Non-Exempt"],
-            values: [
-                data.exempt || 0,
-                data.nonExempt || 0
-            ]
+        charts: {
+            bar: {
+                labels: ["Exempt", "Non-Exempt"],
+                datasets: [
+                    {
+                        label: "Your School",
+                        data: [
+                            data.exempt || 0,
+                            data.nonExempt || 0
+                        ]
+                    }
+                ]
+            }
         }
     };
 }
