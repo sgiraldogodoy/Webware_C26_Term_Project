@@ -18,6 +18,8 @@ export default function Navbar(props) {
             { label: "Compare", to: "/compare", enabled: false },
             { label: "School Dashboard", to: "/school-dashboard", enabled: true }
         ];
+    } else {
+        console.log("error in role, nav_links is null: " + props.role);
     }
 
     return (

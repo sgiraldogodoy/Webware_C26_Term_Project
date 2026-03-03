@@ -76,7 +76,7 @@ export default function SchoolDashboard() {
 
     return (
         <>
-            <Navbar/>
+            <Navbar role={user.role}></Navbar>
             <Page>
 
                 <div className="flex gap-4 mb-6">
