@@ -4,7 +4,7 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import SchoolDashboard from "./pages/SchoolUserDashboard.jsx";
 import CompareDashboard from "./pages/CompareDashboard.jsx";
-
+import BenchmarkForm from "./pages/BenchmarkForm.jsx";
 export default function App() {
     return (
         <BrowserRouter>
@@ -14,6 +14,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/school-dashboard" element={<SchoolDashboard />} />
                 <Route path="/compare-dashboard" element={<CompareDashboard />} />
+                <Route path="/benchmark-form" element={<BenchmarkForm />} />
             </Routes>
         </BrowserRouter>
     );
