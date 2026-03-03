@@ -2,8 +2,8 @@ import { getDashboardData } from "../services/dashboardService.js";
 
 export async function dashboardController(req, res) {
     try {
-        const { yearId, category } = req.query;
-        const schoolId = req.user.schoolId;
+        const { yearId, category} = req.query;
+        const schoolId = req.user.schoolId != null ? req.user.schoolId : Number(req.query.schoolId);
 
         const data = await getDashboardData({
             schoolId,
