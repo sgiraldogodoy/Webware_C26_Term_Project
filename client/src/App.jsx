@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
-import SchoolDashboard from "./pages/SchoolUserDashboard.jsx";
+import SchoolDashboard from "./pages/DashboardPage.jsx";
 import CompareDashboard from "./pages/CompareDashboard.jsx";
 
 export default function App() {

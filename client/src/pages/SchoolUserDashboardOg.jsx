@@ -7,7 +7,7 @@ import Alert from "../components/ui/Alert";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navigation/Navbar.jsx"
 
-export default function SchoolDashboard() {
+export default function SchoolDashboardOg() {
     const [user, setUser] = useState(null);
     const [dashboardData, setDashboardData] = useState(null);
     const [category, setCategory] = useState("Enrollment");

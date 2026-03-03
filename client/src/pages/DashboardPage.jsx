@@ -17,7 +17,7 @@ const CATEGORY_OPTIONS = [
     { value: "Admin support", label: "Admin support" },
 ];
 
-export default function DashboardPage() {
+export default function SchoolDashboard() {
     const [user, setUser] = useState(null);
 
     // filters (year, category, peer group, compare mode)
@@ -38,6 +38,8 @@ export default function DashboardPage() {
             navigate("/");
             return;
         }
+
+        // TODO userfole
 
         fetch("/api/auth/me", {
             headers: { Authorization: `Bearer ${token}` }

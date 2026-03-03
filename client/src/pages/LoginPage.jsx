@@ -16,7 +16,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) navigate("/dashboard");
+        if (token) navigate("/school-dashboard");
     }, [navigate]);
 
     async function handleSubmit(e) {
