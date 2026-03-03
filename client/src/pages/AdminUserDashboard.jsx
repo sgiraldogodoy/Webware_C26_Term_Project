@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Page from "../components/ui/Page";
 import Select from "../components/ui/Select";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
@@ -42,7 +42,7 @@ export default function AdminUserDashboard() {
 
         fetch("/api/schools/public")
             .then(res => res.json())
-            .then(data => setSchools(data))
+            .then(data => setSchools(data.data))
             .catch(() => setError("Failed to load schools."));
     }, [user]);
 
@@ -85,14 +85,6 @@ export default function AdminUserDashboard() {
     return (
         <>
             <Page>
-                <div className="flex justify-between items-center mb-6">
-                    <button
-                        onClick={() => navigate("/dashboard")}
-                        className="text-blue-600 hover:underline"
-                    >
-                        ← Dashboard
-                    </button>
-                </div>
 
                 {error && <p className="text-red-600 mb-4">{error}</p>}
 

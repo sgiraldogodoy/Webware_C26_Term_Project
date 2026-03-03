@@ -69,7 +69,7 @@ export default function RegisterPage() {
     useEffect(() => {
         fetch("/api/schools/public")
             .then((r) => r.json())
-            .then((data) => setSchools(Array.isArray(data) ? data : []))
+            .then((json) => setSchools(Array.isArray(json) ? json : (json.data ?? [])))
             .catch(() => setError("Could not load schools list."));
     }, []);
     async function handleSubmit(e) {

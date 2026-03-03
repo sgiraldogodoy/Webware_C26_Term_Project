@@ -1,13 +1,16 @@
-import { Link, useLocation } from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import Button from "../ui/Button.jsx";
 
 const NAV_LINKS = [
-    { label: "Dashboard", to: "/school-dashboard", enabled: true },
+    { label: "Dashboard", to: "/dashboard", enabled: true },
     { label: "Benchmarking Form", to: "/form", enabled: false },
-    { label: "Compare", to: "/compare", enabled: false }
+    { label: "Compare", to: "/compare", enabled: false },
+    { label: "School Dashboard", to: "/school-dashboard", enabled: true }
 ];
 
 export default function Navbar() {
     const location = useLocation();
+    const navigate = useNavigate();
 
     return (
         <nav className="justify-between">
@@ -35,6 +38,14 @@ export default function Navbar() {
                         </li>
                     );
                 })}
+                <Button
+                    className="btn"
+                    onClick={() => {
+                        localStorage.removeItem("token");
+                        navigate("/");
+                    }}
+                > Log Out
+                </Button>
             </ul>
         </nav>
     );

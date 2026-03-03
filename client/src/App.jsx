@@ -4,6 +4,7 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import SchoolDashboard from "./pages/SchoolUserDashboard.jsx";
 import AdminDashboard from "./pages/AdminUserDashboard.jsx";
+import CompareDashboard from "./pages/CompareDashboard.jsx";
 
 export default function App() {
     return (
@@ -14,6 +15,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/school-dashboard" element={<SchoolDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/compare-dashboard" element={<CompareDashboard />} />
             </Routes>
         </BrowserRouter>
     );

@@ -9,6 +9,7 @@ import Button from "../components/ui/Button";
 // import components
 import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
 import Select from "../components/ui/Select.jsx";
+import Navbar from "../components/Navigation/Navbar.jsx";
 
 const CATEGORY_OPTIONS = [
     { value: "Enrollment", label: "Enrollment" },
@@ -88,11 +89,22 @@ export default function DashboardPage() {
     if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
     const yearOptions = years.map(y => ({ value: y, label: `Year ${y}` }));
+/*
+
+    if (user.role === "SCHOOL") {
+        navigate("/dashboard");
+        return;
+    }
+
+    if (user.role === "ADMIN") {
+        //navigate to admin dashboard
+    }
+*/
 
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-6xl px-6 py-10">
-
+                <Navbar/>
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
@@ -104,7 +116,7 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    <Button
+                    {/*<Button
                         variant="outline"
                         onClick={() => {
                             localStorage.removeItem("token");
@@ -112,7 +124,7 @@ export default function DashboardPage() {
                         }}
                     >
                         Log Out
-                    </Button>
+                    </Button>*/}
                 </div>
 
                 {/* Filters */}
