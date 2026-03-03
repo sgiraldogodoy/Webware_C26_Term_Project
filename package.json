@@ -1,5 +1,5 @@
 {
-  "name": "Webware Term Project",
+  "name": "Webware_Term_Project",
   "version": "0.1.0",
   "description": "Webware Term Project",
   "type": "module",
@@ -16,7 +16,8 @@
     "jsonwebtoken": "^9.0.3",
     "mime": "^2.4.4",
     "mongodb": "^6.21.0",
-    "mongoose": "^8.23.0"
+    "mongoose": "^8.23.0",
+    "node": "^25.7.0"
   },
   "engines": {
     "node": "22.x"
