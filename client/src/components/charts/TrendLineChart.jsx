@@ -13,6 +13,12 @@ import { Line } from "react-chartjs-2";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Title);
 
+const COLORS = [
+    "rgb(3,68,122)",
+    "rgb(0,139,139)",
+    "rgb(99,102,241)"
+];
+
 export default function TrendLineChart({ data, title = "Trend", height = 260 }) {
     const ok =
         Array.isArray(data?.labels) &&
@@ -27,11 +33,10 @@ export default function TrendLineChart({ data, title = "Trend", height = 260 }) 
             ...data,
             datasets: data.datasets.map((ds) => ({
                 ...ds,
-                borderColor: ds.borderColor || "rgb(3, 68, 122)",
-                borderWidth: ds.borderWidth ?? 2,
-                tension: ds.tension ?? 0.3,
-                pointRadius: ds.pointRadius ?? 3,
-                fill: ds.fill ?? false,
+                // backgroundColor: ds.backgroundColor || COLORS,
+                borderColor: ds.borderColor ||  COLORS,
+                tension: 0.1,
+                pointRadius: 0,
             })),
         };
     }, [data, ok]);

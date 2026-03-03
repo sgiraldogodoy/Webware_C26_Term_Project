@@ -36,11 +36,17 @@ export default function EmployeeBarChart({ data, title = "Employee Personnel Ove
     }
 
     // Clone datasets and inject styling
+    const COLORS = [
+        "rgb(3,68,122)",
+        "rgb(0,139,139)",
+        "rgb(99,102,241)"
+    ];
+
     const styledData = {
         ...data,
         datasets: data.datasets.map((ds, i) => ({
             ...ds,
-            backgroundColor: ds.backgroundColor || "rgb(3,68,122)",
+            backgroundColor: ds.backgroundColor || COLORS[i % COLORS.length],
             borderWidth: ds.borderWidth ?? 2,
             borderRadius: ds.borderRadius ?? 8,
         })),

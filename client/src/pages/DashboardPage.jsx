@@ -11,6 +11,7 @@ import EmployeeBarChartData from "../components/charts/EmployeeBarChartData.jsx"
 import Select from "../components/ui/Select.jsx";
 import Navbar from "../components/Navigation/Navbar.jsx";
 import TrendLineChart from "../components/charts/TrendLineChart.jsx";
+import DoughnutChart from "../components/charts/DonutChart.jsx";
 
 const CATEGORY_OPTIONS = [
     { value: "Enrollment", label: "Enrollment" },
@@ -186,6 +187,22 @@ export default function SchoolDashboard() {
 
                     <Card className="p-4">
                         <TrendLineChart data={dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />
+                    </Card>
+
+                    <Card className="p-4">
+                        <EmployeeBarChartData data={dashboardData?.charts?.bar2} title={`Trend — ${category}`} height={260} />
+                    </Card>
+
+                    <Card className="p-4">
+                        {dashboardData?.charts?.donut ? (
+                            <DoughnutChart
+                                data={dashboardData.charts.donut}
+                                title="Personnel Composition"
+                                height={260}
+                            />
+                        ) : (
+                            <div style={{ opacity: 0.7 }}>No composition chart for this category yet.</div>
+                        )}
                     </Card>
 
                 </div>
