@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import Button from "../ui/Button.jsx";
 
 const NAV_LINKS = [
@@ -10,6 +10,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
     const location = useLocation();
+    const navigate = useNavigate();
 
     return (
         <nav className="justify-between">
