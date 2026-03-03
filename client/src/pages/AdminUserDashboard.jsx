@@ -84,6 +84,7 @@ export default function AdminUserDashboard() {
 
     return (
         <>
+            <Navbar role={user.role}></Navbar>
             <Page>
 
                 {error && <p className="text-red-600 mb-4">{error}</p>}
@@ -101,6 +102,8 @@ export default function AdminUserDashboard() {
                             <option key={s.id} value={s.id}>{s.name}</option>
                         ))}
                     </Select>
+
+                    <br></br>
 
                     <Select
                         value={category}

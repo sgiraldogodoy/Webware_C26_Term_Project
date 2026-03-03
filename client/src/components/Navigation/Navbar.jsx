@@ -1,22 +1,30 @@
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import Button from "../ui/Button.jsx";
 
-const NAV_LINKS = [
-    { label: "Dashboard", to: "/dashboard", enabled: true },
-    { label: "Benchmarking Form", to: "/form", enabled: false },
-    { label: "Compare", to: "/compare", enabled: false },
-    { label: "School Dashboard", to: "/school-dashboard", enabled: true }
-];
-
-export default function Navbar() {
+export default function Navbar(props) {
     const location = useLocation();
     const navigate = useNavigate();
+
+    let nav_links = null;
+    if (props.role === "ADMIN") {
+        nav_links = [
+            { label: "Admin Dashboard", to: "/admin-dashboard", enabled: true },
+            { label: "Compare", to: "/compare", enabled: false },
+        ];
+    } else if (props.role === "SCHOOL") {
+        nav_links = [
+            { label: "Dashboard", to: "/dashboard", enabled: true },
+            { label: "Benchmarking Form", to: "/form", enabled: false },
+            { label: "Compare", to: "/compare", enabled: false },
+            { label: "School Dashboard", to: "/school-dashboard", enabled: true }
+        ];
+    }
 
     return (
         <nav className="justify-between">
 
             <ul className="flex items-center gap-5">
-                {NAV_LINKS.map(({label, to, enabled}) => {
+                {nav_links.map(({label, to, enabled}) => {
                     const isActive = location.pathname === to;
 
                     if (!enabled) {
@@ -46,7 +54,9 @@ export default function Navbar() {
                     }}
                 > Log Out
                 </Button>
+
             </ul>
+
         </nav>
     );
 }
