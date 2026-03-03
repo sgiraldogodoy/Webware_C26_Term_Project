@@ -10,6 +10,7 @@ import PeerGroup from "./server/models/PeerGroup.js";
 import dashboardRoutes from "./server/routes/DashboardRoutes.js";
 import cors from "cors";
 import loginRoutes from "./server/routes/LoginRoutes.js";
+import School from "./server/models/School.js";
 
 dotenv.config();
 
@@ -161,8 +162,9 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "client", "dist")));
 
 app.get("/api/schools/:id", auth, async (req, res) => {
-    const school = await School.findOne({ ID: Number(req.params.id) }).lean();
-    if (!school) return res.status(404).json({ error: "Not found" });
+    const school = await School.findOne({ID: Number(req.params.id)}).lean();
+    if (!school) return res.status(404).json({error: "Not found"});
+});
 
 app.use((req, res, next) => {
     if (req.path.startsWith("/api")) return next();
