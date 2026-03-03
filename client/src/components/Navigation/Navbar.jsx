@@ -54,9 +54,7 @@ export default function Navbar(props) {
                     }}
                 > Log Out
                 </Button>
-
             </ul>
-
         </nav>
     );
 }
