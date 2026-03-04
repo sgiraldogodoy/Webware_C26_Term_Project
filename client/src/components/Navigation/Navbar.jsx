@@ -3,14 +3,18 @@ import Button from "../ui/Button.jsx";
 
 const NAV_LINKS = [
     { label: "Dashboard", to: "/dashboard", enabled: true },
-    { label: "Benchmarking Form", to: "/form", enabled: true },
+    { label: "Form", to: "/form", enabled: true },
+    { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
     { label: "Compare", to: "/compare", enabled: false },
-    { label: "School Dashboard", to: "/school-dashboard", enabled: true }
+    { label: "School Dashboard", to: "/school-dashboard", enabled: true },
 ];
 
 export default function Navbar() {
     const location = useLocation();
     const navigate = useNavigate();
+
+
+
 
     return (
         <nav className="justify-between">

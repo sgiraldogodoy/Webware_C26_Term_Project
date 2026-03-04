@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 //Import Schemas
 import PeerGroup from "./server/models/PeerGroup.js";
 import dashboardRoutes from "./server/routes/DashboardRoutes.js";
+import compareDashboardRoutes from "./server/routes/CompareDashboardRoutes.js";
 import cors from "cors";
 import loginRoutes from "./server/routes/LoginRoutes.js";
 import formRoutes from "./server/routes/FormRoutes.js";
