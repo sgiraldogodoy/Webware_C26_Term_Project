@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Page from "../components/ui/Page";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
 import { useNavigate } from "react-router-dom";
+import EmployeeRadarChart from "../components/charts/CompareRadarChart.jsx";
 
 export default function CompareDashboard() {
     const [user, setUser] = useState(null);
@@ -84,8 +85,66 @@ export default function CompareDashboard() {
     if (!yearId) return <Page>Loading years...</Page>;
     if (!compareData) return <Page>Loading compare dashboard...</Page>;
 
+    function CompareSection({ title, labels, yourValues, peerValues }) {
+        return (
+            <section className="mb-14">
+
+                <h2 className="text-xl font-semibold mb-6">
+                    {title}
+                </h2>
+
+                <Card>
+                    <CardContent className="py-6">
+
+                        {/* Number Comparison Table */}
+                        <div className="overflow-x-auto mb-8">
+                            <table className="min-w-full text-sm border">
+                                <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="px-4 py-2 text-left">Metric</th>
+                                    <th className="px-4 py-2 text-right">Your School</th>
+                                    <th className="px-4 py-2 text-right">Peer Avg</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {labels.map((label, index) => (
+                                    <tr key={label} className="border-t">
+                                        <td className="px-4 py-2">{label}</td>
+                                        <td className="px-4 py-2 text-right font-semibold">
+                                            {Number(yourValues[index] || 0).toFixed(1)}
+                                        </td>
+                                        <td className="px-4 py-2 text-right text-gray-600">
+                                            {Number(peerValues[index] || 0).toFixed(1)}
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Radar Chart */}
+                        <div className="h-96">
+                            <EmployeeRadarChart
+                                labels={labels}
+                                yourValues={yourValues}
+                                peerValues={peerValues}
+                            />
+                        </div>
+
+                    </CardContent>
+                </Card>
+
+            </section>
+        );
+    }
+
+
+    const your = compareData?.your || {};
+    const peer = compareData?.peer || {};
     return (
         <Page>
+
+            {/* Back button */}
             <div className="flex justify-between items-center mb-6">
                 <button
                     onClick={() => navigate("/dashboard")}
@@ -95,159 +154,133 @@ export default function CompareDashboard() {
                 </button>
             </div>
 
-            <div className="flex gap-4 mb-6">
-                <label>
-                    Select compare by your current category
-                </label>
-                <select
-                    value={cluster}
-                    onChange={(e) => setCluster(e.target.value)}
-                    className="border px-3 py-2 rounded"
-                >
-                    <option value="region">Region</option>
-                    <option value="group">Group</option>
-                    <option value="gender">Gender</option>
-                    <option value="all">All Schools</option>
-                </select>
+            {/* Filters */}
+            <Card className="mb-10">
+                <CardContent className="py-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 
-                <select
-                    value={yearId}
-                    onChange={(e) => setYearId(e.target.value)}
-                    className="border px-3 py-2 rounded"
-                >
-                    {years.map((y) => (
-                        <option key={y} value={String(y)}>
-                            Year {y}
-                        </option>
-                    ))}
-                </select>
+                        {/* School Info */}
+                        <div>
+                            <h2 className="text-lg font-semibold">
+                                {schoolProfile?.NAME_TX || "Your School"}
+                            </h2>
+                            <p className="text-gray-500 text-sm">
+                                Compare your school against selected peer group
+                            </p>
+                        </div>
 
-                {schoolProfile && (
-                    <p>
-                        Comparing with schools in the same{" "}
-                        <strong>{cluster.toUpperCase()}</strong>
-                        {cluster !== "all" && (
-                            <>
-                                {" "}
-                                (
-                                {cluster === "region" && schoolProfile.region}
-                                {cluster === "group" && schoolProfile.group}
-                                {cluster === "gender" && schoolProfile.gender}
-                                )
-                            </>
-                        )}
-                    </p>
-                )}
-            </div>
+                        {/* Filters */}
+                        <div className="flex gap-6">
 
-            <h2 className="text-lg font-semibold mb-2">Admin Support (Peer Avg)</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Exempt FTE</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.adminSupport?.avgExemptFte?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+                            {/* Cluster Filter */}
+                            <div className="flex flex-col">
+                                <label className="text-sm text-gray-500 mb-1">
+                                    Compare By
+                                </label>
+                                <select
+                                    value={cluster}
+                                    onChange={(e) => setCluster(e.target.value)}
+                                    className="border px-4 py-2 rounded-md shadow-sm"
+                                >
+                                    <option value="region">Region</option>
+                                    <option value="group">Group</option>
+                                    <option value="gender">Gender</option>
+                                    <option value="all">All Schools</option>
+                                </select>
+                            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Non-Exempt FTE</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.adminSupport?.avgNonExemptFte?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+                            {/* Year Filter */}
+                            <div className="flex flex-col">
+                                <label className="text-sm text-gray-500 mb-1">
+                                    Year
+                                </label>
+                                <select
+                                    value={yearId}
+                                    onChange={(e) => setYearId(e.target.value)}
+                                    className="border px-4 py-2 rounded-md shadow-sm"
+                                >
+                                    {years.map((y) => (
+                                        <option key={y} value={String(y)}>
+                                            {y}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Total Admin FTE</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.adminSupport?.avgAdminSupportFte?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
-            <h2 className="text-lg font-semibold mb-2">Personnel (Peer Avg)</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Total Employees</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.personnel?.avgTotalEmployees?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+            {/* Radar chart */}
+            {/* Admin Support */}
+            <CompareSection
+                title="Admin Support"
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg FT Employees</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.personnel?.avgFTEmployees?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+                labels={[
+                    "Exempt FTE",
+                    "Non-Exempt FTE",
+                    "Total Admin FTE",
+                ]}
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg FTE Only</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.personnel?.avgFTEOnly?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+                yourValues={[
+                    your.adminSupport?.exemptFte,
+                    your.adminSupport?.nonExemptFte,
+                    your.adminSupport?.totalAdminSupportFte,
+                ]}
 
-            <h2 className="text-lg font-semibold mb-2">Enrollment (Peer Avg)</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Students Added</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.enrollment?.avgStudentsAdded?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+                peerValues={[
+                    peer.adminSupport?.avgExemptFte,
+                    peer.adminSupport?.avgNonExemptFte,
+                    peer.adminSupport?.avgAdminSupportFte,
+                ]}
+            />
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Graduated</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.enrollment?.avgStudentsGraduated?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+            {/* Personnel */}
+            <CompareSection
+                title="Personnel"
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Avg Not Returning</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-2xl font-bold">
-                            {compareData.enrollment?.avgStudentsNotReturn?.toFixed?.(2) ?? "-"}
-                        </p>
-                    </CardContent>
-                </Card>
+                labels={[
+                    "Total Employees",
+                    "FT Employees",
+                    "FTE Only",
+                ]}
 
-            </div>
+                yourValues={[
+                    your.personnel?.totalEmployees,
+                    your.personnel?.ftEmployees,
+                    your.personnel?.fteOnly,
+                ]}
+
+                peerValues={[
+                    peer.personnel?.avgTotalEmployees,
+                    peer.personnel?.avgFTEmployees,
+                    peer.personnel?.avgFTEOnly,
+                ]}
+            />
+
+            {/* Enrollment */}
+            <CompareSection
+                title="Enrollment"
+
+                labels={[
+                    "Students Added",
+                    "Graduated",
+                    "Not Returning",
+                ]}
+
+                yourValues={[
+                    your.enrollment?.studentsAdded,
+                    your.enrollment?.studentsGraduated,
+                    your.enrollment?.studentsNotReturn,
+                ]}
+
+                peerValues={[
+                    peer.enrollment?.avgStudentsAdded,
+                    peer.enrollment?.avgStudentsGraduated,
+                    peer.enrollment?.avgStudentsNotReturn,
+                ]}
+            />
         </Page>
     );
 }

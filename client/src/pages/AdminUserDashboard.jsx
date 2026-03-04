@@ -1,29 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Page from "../components/ui/Page";
 import Select from "../components/ui/Select";
-import Button from "../components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card";
-import Alert from "../components/ui/Alert";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navigation/Navbar.jsx"
 
-export default function SchoolDashboard() {
+export default function AdminUserDashboard() {
     const [user, setUser] = useState(null);
     const [dashboardData, setDashboardData] = useState(null);
     const [category, setCategory] = useState("Enrollment");
     const [yearId, setYearId] = useState(null);
     const [years, setYears] = useState([]);
+    const [schools, setSchools] = useState([]);
+    const [schoolId, setSchoolId] = useState(null);
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
+    // Auth check
     useEffect(() => {
         const token = localStorage.getItem("token");
-
-        if (!token) {
-            navigate("/");
-            return;
-        }
+        if (!token) { navigate("/"); return; }
 
         fetch("/api/auth/me", {
             headers: { Authorization: `Bearer ${token}` }
@@ -39,47 +36,75 @@ export default function SchoolDashboard() {
             });
     }, [navigate]);
 
+    // Load school list once user is confirmed
     useEffect(() => {
         if (!user) return;
 
+        fetch("/api/schools/public")
+            .then(res => res.json())
+            .then(data => setSchools(data.data))
+            .catch(() => setError("Failed to load schools."));
+    }, [user]);
+
+    // Load years whenever schoolId changes; also resets year and dashboard
+    useEffect(() => {
+        if (!user || !schoolId) return;
+
+        setYearId(null);
+        setDashboardData(null);
+
         const token = localStorage.getItem("token");
 
-        fetch("/api/dashboard/years", {
+        fetch(`/api/dashboard/years?schoolId=${schoolId}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => {
                 setYears(data);
-                if (data.length > 0) {
-                    setYearId(data[0]);
-                }
+                if (data.length > 0) setYearId(data[0]);
             })
             .catch(() => setError("Failed to load years."));
-    }, [user]);
+    }, [user, schoolId]);
 
+    // Load dashboard data whenever school, year, or category changes
     useEffect(() => {
-        if (!user || !yearId) return;
+        if (!user || !schoolId || !yearId) return;
 
         const token = localStorage.getItem("token");
 
-        fetch(`/api/dashboard?yearId=${yearId}&category=${category}`, {
+        fetch(`/api/dashboard?schoolId=${schoolId}&yearId=${yearId}&category=${category}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => setDashboardData(data))
             .catch(() => setError("Failed to load dashboard data."));
-    }, [user, category, yearId]);
+    }, [user, schoolId, category, yearId]);
 
     if (!user) return <Page>Loading user...</Page>;
-    if (!yearId) return <Page>Loading years...</Page>;
-    if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
     return (
         <>
             <Navbar role={user.role}></Navbar>
             <Page>
 
+                {error && <p className="text-red-600 mb-4">{error}</p>}
+
                 <div className="flex gap-4 mb-6">
+                    <Select
+                        value={schoolId ?? ""}
+                        onChange={e => {
+                            setSchoolId(Number(e.target.value));
+                            setError("");
+                        }}
+                    >
+                        <option value="" disabled>Select a school</option>
+                        {schools.map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                    </Select>
+
+                    <br></br>
+
                     <Select
                         value={category}
                         onChange={e => setCategory(e.target.value)}
@@ -90,40 +115,31 @@ export default function SchoolDashboard() {
                     </Select>
 
                     <Select
-                        value={yearId}
+                        value={yearId ?? ""}
                         onChange={e => setYearId(Number(e.target.value))}
+                        disabled={!schoolId}
                     >
                         {years.map(y => (
-                            <option key={y} value={y}>
-                                Year {y}
-                            </option>
+                            <option key={y} value={y}>Year {y}</option>
                         ))}
                     </Select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {dashboardData.kpis.map((kpi, i) => (
-                        <Card key={i}>
-                            <CardHeader>
-                                <CardTitle>{kpi.label}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-2xl font-bold">{kpi.value}</p>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                {dashboardData && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {dashboardData.kpis.map((kpi, i) => (
+                            <Card key={i}>
+                                <CardHeader>
+                                    <CardTitle>{kpi.label}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-2xl font-bold">{kpi.value}</p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
             </Page>
-            <button
-                className="btn"
-                onClick={() => {
-                    localStorage.removeItem("token");
-                    navigate("/");
-                }}
-            > Log Out</button>
         </>
     );
 }
-
-
-

@@ -103,7 +103,7 @@ export default function DashboardPage() {
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-6xl px-6 py-10">
-                <Navbar/>
+                <Navbar role={user.role}></Navbar>
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>

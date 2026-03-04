@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import SchoolDashboard from "./pages/SchoolUserDashboard.jsx";
+import AdminDashboard from "./pages/AdminUserDashboard.jsx";
 import CompareDashboard from "./pages/CompareDashboard.jsx";
 import BenchmarkForm from "./pages/BenchmarkForm.jsx";
 import FormPage from "./pages/FormPage.jsx";
@@ -16,6 +17,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/form" element={<FormPage />} />
                 <Route path="/school-dashboard" element={<SchoolDashboard />} />
+                <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/compare-dashboard" element={<CompareDashboard />} />
                 <Route path="/benchmark-form" element={<BenchmarkForm />} />
             </Routes>
