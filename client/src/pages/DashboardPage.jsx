@@ -63,10 +63,9 @@ export default function DashboardPage() {
         })
             .then(res => res.json())
             .then(data => {
-                setYears(data);
-                if (data.length > 0) {
-                    setYearId(data[0]);
-                }
+                console.log("years API returned:", data);
+                setYears(Array.isArray(data) ? data : []);
+                if (Array.isArray(data) && data.length > 0) setYearId(Number(data[0].ID));
             })
             .catch(() => setError("Failed to load years."));
     }, [user]);
@@ -88,7 +87,7 @@ export default function DashboardPage() {
     if (!yearId) return <Page>Loading years...</Page>;
     if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
-    const yearOptions = years.map(y => ({ value: y, label: `Year ${y}` }));
+    const yearOptions = years.map(y => ({ value: String(y.ID), label: `Year ${y.SCHOOL_YEAR}` }));
 /*
 
     if (user.role === "SCHOOL") {
@@ -138,7 +137,7 @@ export default function DashboardPage() {
 
                     <Dropdown
                         label="Year"
-                        value={yearId}
+                        value={String(yearId)}
                         options={yearOptions}
                         onChange={(newValue) => setYearId(Number(newValue))}
                     />

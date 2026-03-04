@@ -10,7 +10,9 @@ import PeerGroup from "./server/models/PeerGroup.js";
 import dashboardRoutes from "./server/routes/DashboardRoutes.js";
 import cors from "cors";
 import loginRoutes from "./server/routes/LoginRoutes.js";
+import formRoutes from "./server/routes/FormRoutes.js";
 import School from "./server/models/School.js";
+import compareDashboardRoutes from "./server/routes/CompareDashboardRoutes.js";
 
 dotenv.config();
 
@@ -67,12 +69,12 @@ function auth(req, res, next) {
 app.get("/api/auth/me", auth, async (req, res) => {
     res.json(req.user);
 });
-
-app.use("/api/dashboard", auth, dashboardRoutes);
-
+//Public
 app.use("/api", loginRoutes);
-
+//Private
+app.use("/api/dashboard", auth, dashboardRoutes);
 app.use("/api/compare-dashboard", auth, compareDashboardRoutes);
+app.use("/api/form", auth, formRoutes);
 
 // dashboard endpoints
 // helper functions
