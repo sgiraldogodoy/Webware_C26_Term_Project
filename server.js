@@ -12,6 +12,7 @@ import compareDashboardRoutes from "./server/routes/CompareDashboardRoutes.js";
 import cors from "cors";
 import loginRoutes from "./server/routes/LoginRoutes.js";
 import School from "./server/models/School.js";
+import compareDashboardRoutes from "./server/routes/compareDashboardRoutes.js";
 
 dotenv.config();
 

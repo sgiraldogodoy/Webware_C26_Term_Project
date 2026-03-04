@@ -34,7 +34,16 @@ export async function getCompareData({schoolId, yearId, cluster}){
     const peerSchoolId = peerSchools.map(s => s.ID);
     console.log("Matched peer schools:", peerSchoolId);
 
-    return await calculatePeerKpis(peerSchoolId, yearId);
+    const [peer, your] = await Promise.all([
+        calculatePeerKpis(peerSchoolId, yearId),
+        calculateYourKpis(schoolId, yearId)
+    ]);
+    console.log([peer, your]);
+
+    return {
+        your,
+        peer
+    };
 }
 
 async function calculatePeerKpis(peerSchoolId, yearId) {
@@ -121,5 +130,89 @@ async function calculatePeerKpis(peerSchoolId, yearId) {
         adminSupport: adminResult[0] || {},
         personnel: personnelResult[0] || {},
         enrollment: enrollResult[0] || {}
+    };
+}
+
+async function calculateYourKpis(schoolId, yearId) {
+    const y = Number(yearId);
+
+    const toNum = (fieldPath) => ({
+        $convert: {
+            input: fieldPath,
+            to: "double",
+            onError: 0,
+            onNull: 0,
+        },
+    });
+
+    const [adminResult, personnelResult, enrollResult] = await Promise.all([
+        // Admin Support
+        EmployeeAdminSupport.aggregate([
+            {
+                $match: {
+                    SCHOOL_ID: schoolId,
+                    SCHOOL_YR_ID: y,
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    exemptFte: { $sum: toNum("$FTE_EXEMPT") },
+                    nonExemptFte: { $sum: toNum("$FTE_NONEXEMPT") },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    exemptFte: 1,
+                    nonExemptFte: 1,
+                    totalAdminSupportFte: { $add: ["$exemptFte", "$nonExemptFte"] },
+                },
+            },
+        ]),
+
+        // Personnel
+        EmployeePersonnel.aggregate([
+            {
+                $match: {
+                    SCHOOL_ID: schoolId,
+                    SCHOOL_YR_ID: y,
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalEmployees: { $sum: toNum("$TOTAL_EMPLOYEES") },
+                    ftEmployees: { $sum: toNum("$FT_EMPLOYEES") },
+                    fteOnly: { $sum: toNum("$FTE_ONLY_NUM") },
+                },
+            },
+            { $project: { _id: 0 } },
+        ]),
+
+        // Enrollment
+        EnrollAttrition.aggregate([
+            {
+                $match: {
+                    SCHOOL_ID: schoolId,
+                    SCHOOL_YR_ID: y,
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    studentsAdded: { $sum: toNum("$STUDENTS_ADDED_DURING_YEAR") },
+                    studentsGraduated: { $sum: toNum("$STUDENTS_GRADUATED") },
+                    studentsNotReturn: { $sum: toNum("$STUD_NOT_RETURN") },
+                },
+            },
+            { $project: { _id: 0 } },
+        ]),
+    ]);
+
+    return {
+        adminSupport: adminResult?.[0] ?? {},
+        personnel: personnelResult?.[0] ?? {},
+        enrollment: enrollResult?.[0] ?? {},
     };
 }
