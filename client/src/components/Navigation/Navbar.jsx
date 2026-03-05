@@ -14,7 +14,6 @@ export default function Navbar(props) {
     } else if (props.role === "SCHOOL") {
         nav_links = [
             { label: "Dashboard", to: "/dashboard", enabled: true },
-            { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
             { label: "Form", to: "/form", enabled: true },
             { label: "Compare", to: "/compare", enabled: false },
             { label: "School Dashboard", to: "/school-dashboard", enabled: true }

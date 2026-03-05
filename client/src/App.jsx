@@ -19,7 +19,6 @@ export default function App() {
                 <Route path="/school-dashboard" element={<SchoolDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/compare-dashboard" element={<CompareDashboard />} />
-                <Route path="/benchmark-form" element={<BenchmarkForm />} />
             </Routes>
         </BrowserRouter>
     );
