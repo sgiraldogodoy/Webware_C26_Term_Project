@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const employeePersonnelSchema = new mongoose.Schema(
     {
+        ID: {
+            type: Number,
+            required: true,
+            index: true
+        },
+
         SCHOOL_ID: {
             type: Number,
             required: true,
@@ -14,17 +20,20 @@ const employeePersonnelSchema = new mongoose.Schema(
             index: true
         },
 
-        EMP_CAT_CD: String,
+        EMP_CAT_CD: {
+            type: String,
+            required: true
+        },
 
         SUBCONTRACT_NUM: Number,
-        SUBCONTRACT_FTE: Number,
+        SUBCONTRACT_FTE: mongoose.Schema.Types.Decimal128,
 
         FTE_ONLY_NUM: Number,
-        FTE_ONLY_SALARY_MIN: Number,
-        FTE_ONLY_SALARY_MAX: Number,
+        FTE_ONLY_SALARY_MIN: mongoose.Schema.Types.Decimal128,
+        FTE_ONLY_SALARY_MAX: mongoose.Schema.Types.Decimal128,
 
         TOTAL_EMPLOYEES: Number,
-        FT_EMPLOYEES: Number,
+        FT_EMPLOYEES: mongoose.Schema.Types.Decimal128,
         POC_EMPLOYEES: Number,
 
         LOCK_ID: Number,
