@@ -1,66 +1,3 @@
-// import {Link, useLocation, useNavigate} from "react-router-dom";
-// import Button from "../ui/Button.jsx";
-//
-// export default function Navbar(props) {
-//     const location = useLocation();
-//     const navigate = useNavigate();
-//
-//     let nav_links = null;
-//     if (props.role === "ADMIN") {
-//         nav_links = [
-//             { label: "Admin Dashboard", to: "/admin-dashboard", enabled: true },
-//             { label: "Compare", to: "/compare", enabled: false },
-//         ];
-//     } else if (props.role === "SCHOOL") {
-//         nav_links = [
-//             { label: "Dashboard", to: "/dashboard", enabled: true },
-//             { label: "Benchmarking Form", to: "/benchmark-form", enabled: false },
-//             { label: "Compare", to: "/compare", enabled: false },
-//             { label: "School Dashboard", to: "/school-dashboard", enabled: true }
-//         ];
-//     } else {
-//         console.log("error in role, nav_links is null: " + props.role);
-//     }
-//
-//     return (
-//         <nav className="justify-between">
-//
-//             <ul className="flex items-center gap-5">
-//                 {nav_links.map(({label, to, enabled}) => {
-//                     const isActive = location.pathname === to;
-//
-//                     if (!enabled) {
-//                         return (
-//                             <li key={label}>
-//                                 {label}
-//                             </li>
-//                         );
-//                     }
-//
-//                     return (
-//                         <li key={label}>
-//                             <Link
-//                                 to={to}
-//                                 className="flex items-center gap-5"
-//                                 >
-//                                 {label}
-//                             </Link>
-//                         </li>
-//                     );
-//                 })}
-//                 <Button
-//                     className="btn"
-//                     onClick={() => {
-//                         localStorage.removeItem("token");
-//                         navigate("/");
-//                     }}
-//                 > Log Out
-//                 </Button>
-//             </ul>
-//         </nav>
-//     );
-// }
-
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -86,6 +23,13 @@ export default function Navbar({ role }) {
             { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
             { label: "Compare", to: "/compare-dashboard", enabled: true },
             // { label: "School Dashboard", to: "/school-dashboard", enabled: true },
+        ];
+    } else if (role == null) {
+        nav_links = [
+            { label: "Home", to: "/", enabled: true },
+            { label: "Login", to: "/login", enabled: true },
+            { label: "Register", to: "/register", enabled: true },
+            { label: "Osprey", to: "https://ospreysoftware.com/", enabled: true },
         ];
     } else {
         console.log("error in role, nav_links is null: " + role);
@@ -162,22 +106,25 @@ export default function Navbar({ role }) {
                     </div>
 
                     {/* Right side: bell + profile */}
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                    {role !== null && <div
+                        className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                         <button
                             type="button"
                             className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
                         >
-                            <span className="absolute -inset-1.5" />
+                            <span className="absolute -inset-1.5"/>
                             <span className="sr-only">View notifications</span>
-                            <BellIcon aria-hidden="true" className="size-6" />
+                            <BellIcon aria-hidden="true" className="size-6"/>
                         </button>
 
                         {/* Profile dropdown */}
                         <Menu as="div" className="relative ml-3">
-                            <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
-                                <span className="absolute -inset-1.5" />
+                            <MenuButton
+                                className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                                <span className="absolute -inset-1.5"/>
                                 <span className="sr-only">Open user menu</span>
-                                <div className="size-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-bold">
+                                <div
+                                    className="size-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs font-bold">
                                     {role?.[0] ?? "U"}
                                 </div>
                             </MenuButton>
@@ -202,7 +149,7 @@ export default function Navbar({ role }) {
                                         Settings
                                     </Link>
                                 </MenuItem>
-                                <div className="border-t border-gray-100 my-1" />
+                                <div className="border-t border-gray-100 my-1"/>
                                 <MenuItem>
                                     <button
                                         onClick={handleLogout}
@@ -213,7 +160,7 @@ export default function Navbar({ role }) {
                                 </MenuItem>
                             </MenuItems>
                         </Menu>
-                    </div>
+                    </div>}
 
                 </div>
             </div>

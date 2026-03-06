@@ -52,9 +52,10 @@ export default function SettingsPage() {
     }
 
     return (
+        <div style={{ height: "100vh", overflow: "hidden" }}>
+            {me && <Navbar role={me.role}></Navbar>}
         <Page className="items-start justify-center">
-            <div className="w-full max-w-4xl px-6 py-10">
-                {me && <Navbar role={me.role}></Navbar>}
+            <div className="w-full max-w-4xl px-6 pt-4 pb-10">
                 <div className="mt-6">
                     <Card>
                         <CardHeader>
@@ -89,12 +90,15 @@ export default function SettingsPage() {
                                     }} />
                                 </FormField>
 
-                                <Button type="submit">Update password</Button>
+                                <div className="flex justify-center">
+                                    <Button type="submit">Update password</Button>
+                                </div>
                             </form>
                         </CardContent>
                     </Card>
                 </div>
             </div>
         </Page>
+        </div>
     );
 }
