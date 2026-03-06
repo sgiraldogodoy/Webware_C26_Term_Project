@@ -19,7 +19,8 @@ export default function HomePage() {
 
     return (
         <div style={{ height: "100vh", overflow: "hidden" }}>
-        <Layout role={null} title="School Dashboard">
+        <Navbar role={null} />
+            <Page>
                 <h1 style={{
                     fontSize: "clamp(42px, 8vw, 80px)",
                     fontWeight: 900,
@@ -46,7 +47,7 @@ export default function HomePage() {
             >
                 Get Started →
             </button>
-        </Layout>
+        </Page>
         </div>
     );
 }
