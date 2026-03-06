@@ -6,6 +6,7 @@ import Input from "../components/ui/Input";
 import FormField from "../components/ui/FormField";
 import Alert from "../components/ui/Alert";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/Card";
+import Navbar from "../components/Navigation/Navbar.jsx";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -44,7 +45,8 @@ export default function LoginPage() {
     }
 
     return (
-
+        <div>
+            <Navbar role={null} />
         <Page>
             <Card className="w-full max-w-md">
                 <CardHeader>
@@ -91,5 +93,6 @@ export default function LoginPage() {
                 </CardContent>
             </Card>
         </Page>
+        </div>
     );
 }
