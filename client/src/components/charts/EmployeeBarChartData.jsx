@@ -25,24 +25,27 @@ const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 const textColor = isDark ? "#f1f5f9" : "#334155";
 const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-
-export default function EmployeeBarChart({ data, title = "Employee Personnel Overview", horizontal = false }) {
+export default function EmployeeBarChart({ data, title = "Employee Personnel Overview", horizontal = false, multiColor = false }) {
+    // Basic validation to ensure we have labels and datasets
     if (!data?.labels?.length || !data?.datasets?.length) {
         return <div style={{ opacity: 0.7 }}>No data available.</div>;
     }
 
-    // Clone datasets and inject styling
     const COLORS = [
         "rgb(3,68,122)",
         "rgb(0,139,139)",
-        "rgb(99,102,241)"
+        "rgb(0,100,100)",
+        "rgb(1,50,90)",
+        "rgb(0,180,180)"
     ];
 
     const styledData = {
         ...data,
         datasets: data.datasets.map((ds, i) => ({
             ...ds,
-            backgroundColor: ds.backgroundColor || COLORS[i % COLORS.length],
+            backgroundColor: multiColor
+                ? data.labels.map((_, j) => COLORS[j % COLORS.length])  // one color per bar
+                : ds.backgroundColor || COLORS[i % COLORS.length],       // one color per dataset
             borderWidth: ds.borderWidth ?? 2,
             borderRadius: ds.borderRadius ?? 8,
             barPercentage: 0.9,

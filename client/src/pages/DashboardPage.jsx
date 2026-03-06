@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card"
 
 
 // import components
+import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
 import EmployeeBarChartData from "../components/charts/EmployeeBarChartData.jsx";
 import Navbar from "../components/Navigation/Navbar.jsx";
 import TrendLineChart from "../components/charts/TrendLineChart.jsx";
@@ -17,6 +18,28 @@ const CATEGORY_OPTIONS = [
     { value: "Personnel", label: "Personnel" },
     { value: "Admin support", label: "Admin support" },
 ];
+
+const TEAL = "rgb(0,139,139)";
+
+function KpiCard({ label, value, trend, trendPct}) {
+    const up = trend >= 0;
+    return (
+        <div style={{
+            background: "#fff",
+            borderRadius: 14,
+            padding: "18px 22px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(3,68,122,0.06)",
+            borderLeft: `4px solid ${TEAL}`,
+            display: "flex", flexDirection: "column", gap: 4
+        }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
+            <span style={{ fontSize: 28, fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>{typeof value === "number" ? value.toLocaleString() : value}</span>
+            <span style={{ fontSize: 12, color: up ? TEAL : "#e53e3e", fontWeight: 600 }}>
+                {up ? "▲" : "▼"} {trendPct} vs last year
+            </span>
+        </div>
+    );
+}
 
 export default function SchoolDashboard() {
     const [user, setUser] = useState(null);
@@ -112,16 +135,17 @@ export default function SchoolDashboard() {
     });
 
     return (
+        <div>
+            <Navbar role={user.role}></Navbar>
         <Page className="items-start justify-center">
-            <div className="w-full max-w-6xl px-6 py-10">
+            <div className="w-full max-w-6xl px-6 py-10 pt-4">
 
-                {/*<Navbar role={user.role}></Navbar>*/}
 
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>School Dashboard</h1>
-                        <p style={{ fontSize: 13, color: "#64748b", margin: "2px 0 0" }}>School ID 36 · Viewing {category}</p>
+                        <p style={{ fontSize: 13, color: "#64748b", margin: "2px 0 0" }}>School ID {user.schoolId} · Viewing {category}</p>
                     </div>
                     {/* Filters */}
                     <div className="mt-6 flex flex-wrap gap-4">
@@ -143,29 +167,36 @@ export default function SchoolDashboard() {
 
 
                 {/* KPI Cards */}
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/*<div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">*/}
+                {/*    {dashboardData.kpis.map((kpi, i) => (*/}
+                {/*        <Card key={i}>*/}
+                {/*            <CardHeader>*/}
+                {/*                <CardTitle>{kpi.label}</CardTitle>*/}
+                {/*            </CardHeader>*/}
+                {/*            <CardContent>*/}
+                {/*                <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">*/}
+                {/*                    {kpi.value}*/}
+                {/*                </p>*/}
+                {/*            </CardContent>*/}
+                {/*        </Card>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
+                {/* KPI Cards */}
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {dashboardData.kpis.map((kpi, i) => (
-                        <Card key={i}>
-                            <CardHeader>
-                                <CardTitle>{kpi.label}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                                    {kpi.value}
-                                </p>
-                            </CardContent>
-                        </Card>
+                        <KpiCard key={i} label={kpi.label} value={kpi.value} trend={kpi.trend} trendPct={kpi.trendPct} />
                     ))}
                 </div>
 
                 {/* Charts */}
-                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
 
                     <Card className="p-4">
                         <EmployeeBarChartData
                             data={dashboardData?.charts?.bar2}
                             title="Employees by Category"
                             horizontal={true}
+                            multiColor={false}
                         />
                     </Card>
 
@@ -174,7 +205,10 @@ export default function SchoolDashboard() {
                     </Card>
 
                     <Card className="p-4">
-                        <EmployeeBarChartData data={dashboardData?.charts?.bar} title="Enrollment Overview" />
+                        <EmployeeBarChartData
+                            data={dashboardData?.charts?.bar}
+                            title="Enrollment Overview"
+                            multiColor={true}/>
                     </Card>
 
                     <Card className="p-4">
@@ -192,5 +226,6 @@ export default function SchoolDashboard() {
                 </div>
             </div>
         </Page>
+        </div>
     );
 }
