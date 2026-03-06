@@ -10,7 +10,9 @@ router.get("/", dashboardController);
 // GET /api/dashboard/years
 router.get("/years", async (req, res) => {
     try {
-        const schoolId = req.user.schoolId != null ? req.user.schoolId : Number(req.query.schoolId);
+        const schoolId = req.query.schoolId
+            ? Number(req.query.schoolId)
+            : req.user.schoolId;
 
         const years = await EmployeeAdminSupport.distinct(
             "SCHOOL_YR_ID",
