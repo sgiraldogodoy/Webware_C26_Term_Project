@@ -2,13 +2,14 @@ import {getCompareData} from "../services/CompareDashboardService.js";
 
 export async function compareDashboardController(req, res) {
     try {
-        const { yearId, cluster } = req.query;
-        const schoolId = req.user.schoolId;
+        const { yearId, cluster, schoolId } = req.query;
+        // const schoolId = req.user.schoolId;
 
         const parsedYearId = Number(yearId);
+        const parsedSchoolId = Number(schoolId);
 
         const data = await getCompareData({
-            schoolId,
+            schoolId: parsedSchoolId,
             yearId: parsedYearId,
             cluster
         });

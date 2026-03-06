@@ -244,8 +244,8 @@ export async function getFormOptionsService({ user }) {
 }
 
 export async function getYearsService({ user }) {
-    const chk = mustBeSchoolUser(user);
-    if (!chk.ok) return chk;
+    //const chk = mustBeSchoolUser(user);
+    //if (!chk.ok) return chk;
 
     const years = await SchoolYear.find()
         .select({ _id: 0, ID: 1, SCHOOL_YEAR: 1 })

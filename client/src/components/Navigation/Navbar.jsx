@@ -152,6 +152,14 @@ export default function Navbar({ role }) {
                                         Settings
                                     </Link>
                                 </MenuItem>
+                                {role === "ADMIN" && <MenuItem>
+                                    <Link
+                                        to="/admin/users"
+                                        className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                                    >
+                                        Manage Users
+                                    </Link>
+                                </MenuItem>}
                                 <div className="border-t border-gray-100 my-1"/>
                                 <MenuItem>
                                     <button

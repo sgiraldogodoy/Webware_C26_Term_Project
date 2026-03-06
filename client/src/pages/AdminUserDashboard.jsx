@@ -162,26 +162,23 @@ const CATEGORY_OPTIONS = [
 
 const TEAL = "rgb(0,139,139)";
 
-function KpiCard({ label, value, trend, trendPct }) {
+function KpiCard({ label, value, trend, trendPct, trendDirection}) {
     const up = trend >= 0;
+    const color = (trendDirection === "up" && up) || (trendDirection === "down" && !up) ? TEAL : "#e53e3e";
     return (
         <div style={{
             background: "#fff",
             borderRadius: 14,
             padding: "18px 22px",
             boxShadow: "0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(3,68,122,0.06)",
-            borderLeft: `4px solid ${up ? TEAL : "#e53e3e"}`,
+            borderLeft: `4px solid ${color}`,
             display: "flex", flexDirection: "column", gap: 4
         }}>
             <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
-            <span style={{ fontSize: 28, fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>
-                {typeof value === "number" ? value.toLocaleString() : value}
+            <span style={{ fontSize: 28, fontWeight: 700, color: "#0f172a", lineHeight: 1.2 }}>{typeof value === "number" ? value.toLocaleString() : value}</span>
+            <span style={{ fontSize: 12, color: color, fontWeight: 600 }}>
+                {up ? "▲" : "▼"} {trendPct} vs last year
             </span>
-            {trendPct && (
-                <span style={{ fontSize: 12, color: up ? TEAL : "#e53e3e", fontWeight: 600 }}>
-                    {up ? "▲" : "▼"} {trendPct} vs last year
-                </span>
-            )}
         </div>
     );
 }
@@ -218,11 +215,12 @@ export default function AdminUserDashboard() {
             .catch(() => setError("Failed to load schools."));
     }, [user]);
 
+
     // Load years when school changes
     useEffect(() => {
         if (!user || !schoolId) return;
-        setYearId(null);
-        setDashboardData(null);
+        //setYearId(null);
+        //setDashboardData(null);
 
         const token = localStorage.getItem("token");
         fetch(`/api/dashboard/years?schoolId=${schoolId}`, {
@@ -230,8 +228,9 @@ export default function AdminUserDashboard() {
         })
             .then(res => res.json())
             .then(data => {
-                setYears(data);
-                if (data.length > 0) setYearId(data[0]);
+                console.log("years API returned:", data);
+                setYears(Array.isArray(data) ? data : []);
+                if (Array.isArray(data) && data.length > 0) setYearId(Number(data[0].ID));
             })
             .catch(() => setError("Failed to load years."));
     }, [user, schoolId]);
@@ -252,7 +251,7 @@ export default function AdminUserDashboard() {
     if (!user) return <Page>Loading user...</Page>;
 
     const schoolOptions = schools.map(s => ({ value: s.id, label: s.name }));
-    const yearOptions = years.map(y => ({ value: y, label: `Year ${y}` }));
+    const yearOptions = years.map(y => ({ value: String(y.ID), label: `Year ${y.SCHOOL_YEAR}` }));
     const selectedSchool = schools.find(s => s.id === schoolId);
 
     return (
@@ -283,12 +282,12 @@ export default function AdminUserDashboard() {
                                 options={CATEGORY_OPTIONS}
                                 onChange={(newValue) => setCategory(newValue)}
                             />
-                            <Dropdown
+                            {schoolId && <Dropdown
                                 label="Year"
-                                value={yearId ?? ""}
+                                value={String(yearId)}
                                 options={yearOptions}
                                 onChange={(newValue) => setYearId(Number(newValue))}
-                            />
+                            />}
                         </div>
                     </div>
 
@@ -305,7 +304,7 @@ export default function AdminUserDashboard() {
                             {/* KPI Cards */}
                             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                 {dashboardData.kpis.map((kpi, i) => (
-                                    <KpiCard key={i} label={kpi.label} value={kpi.value} trend={kpi.trend} trendPct={kpi.trendPct} />
+                                    <KpiCard key={i} label={kpi.label} value={kpi.value} trend={kpi.trend} trendPct={kpi.trendPct} trendDirection={kpi.trendDirection} />
                                 ))}
                             </div>
 

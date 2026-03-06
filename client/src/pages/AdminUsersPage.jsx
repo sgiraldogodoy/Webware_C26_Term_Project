@@ -101,9 +101,11 @@ export default function AdminUsersPage() {
     }));
 
     return (
-        <Page className="items-start justify-center">
+        <div style={{ height: "100vh", overflow: "hidden" }}>
+            {me && <Navbar role={me.role}></Navbar>}
+            <Page className="items-start justify-center">
             <div className="w-full max-w-5xl px-6 py-10">
-                {me && <Navbar role={me.role}></Navbar>}
+
                 <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
                     <Card>
                         <CardHeader>
@@ -195,5 +197,6 @@ export default function AdminUsersPage() {
                 </div>
             </div>
         </Page>
+        </div>
     );
 }
