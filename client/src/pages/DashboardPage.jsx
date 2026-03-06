@@ -6,12 +6,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/Card"
 
 
 // import components
-import EmployeeBarChart from "../components/charts/EmployeeBarChart.jsx";
 import EmployeeBarChartData from "../components/charts/EmployeeBarChartData.jsx";
-import Select from "../components/ui/Select.jsx";
 import Navbar from "../components/Navigation/Navbar.jsx";
 import TrendLineChart from "../components/charts/TrendLineChart.jsx";
 import DoughnutChart from "../components/charts/DonutChart.jsx";
+import Mockup from "../components/ui/dashboardmockup.jsx";
 
 const CATEGORY_OPTIONS = [
     { value: "Enrollment", label: "Enrollment" },
@@ -24,7 +23,7 @@ export default function SchoolDashboard() {
 
     // filters (year, category, peer group, compare mode)
     const [dashboardData, setDashboardData] = useState(null);
-    const [category, setCategory] = useState("Enrollment");
+    const [category, setCategory] = useState("Personnel");
     const [yearId, setYearId] = useState(null);
     const [years, setYears] = useState([]);
     const [error, setError] = useState("");
@@ -115,45 +114,33 @@ export default function SchoolDashboard() {
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-6xl px-6 py-10">
-                <Navbar role={user.role}></Navbar>
+
+                {/*<Navbar role={user.role}></Navbar>*/}
+
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-50">
-                            Dashboard
-                        </h1>
-                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                            Role: {user.role} · School: {user.schoolId || "Admin"}
-                        </p>
+                        <h1 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: 0 }}>School Dashboard</h1>
+                        <p style={{ fontSize: 13, color: "#64748b", margin: "2px 0 0" }}>School ID 36 · Viewing {category}</p>
                     </div>
+                    {/* Filters */}
+                    <div className="mt-6 flex flex-wrap gap-4">
+                        <Dropdown
+                            label="Category"
+                            value={category}
+                            options={CATEGORY_OPTIONS}
+                            onChange={(newValue) => setCategory(newValue)}
+                        />
 
-                    {/*<Button
-                        variant="outline"
-                        onClick={() => {
-                            localStorage.removeItem("token");
-                            navigate("/");
-                        }}
-                    >
-                        Log Out
-                    </Button>*/}
+                        <Dropdown
+                            label="Year"
+                            value={yearId}
+                            options={yearOptions}
+                            onChange={(newValue) => setYearId(Number(newValue))}
+                        />
+                    </div>
                 </div>
 
-                {/* Filters */}
-                <div className="mt-6 flex flex-wrap gap-4">
-                    <Dropdown
-                        label="Category"
-                        value={category}
-                        options={CATEGORY_OPTIONS}
-                        onChange={(newValue) => setCategory(newValue)}
-                    />
-
-                    <Dropdown
-                        label="Year"
-                        value={yearId}
-                        options={yearOptions}
-                        onChange={(newValue) => setYearId(Number(newValue))}
-                    />
-                </div>
 
                 {/* KPI Cards */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -175,22 +162,19 @@ export default function SchoolDashboard() {
                 <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                     <Card className="p-4">
-                        {/*<EmployeeBarChart kpis={dashboardData?.kpis} />*/}
-                        {/*<EmployeeBarChartData chartData={dashboardData?.chartData} />*/}
-                        <EmployeeBarChartData data={dashboardData?.charts?.bar} title="Enrollment Overview" />
+                        <EmployeeBarChartData
+                            data={dashboardData?.charts?.bar2}
+                            title="Employees by Category"
+                            horizontal={true}
+                        />
                     </Card>
-
-                    {/*<Card className="p-4">*/}
-                    {/*    /!*<TrendLineChart data={dashboardData?.chartData || dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />*!/*/}
-                    {/*    <TrendLineChart data={dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />*/}
-                    {/*</Card>*/}
 
                     <Card className="p-4">
                         <TrendLineChart data={dashboardData?.charts?.line} title={`Trend — ${category}`} height={260} />
                     </Card>
 
                     <Card className="p-4">
-                        <EmployeeBarChartData data={dashboardData?.charts?.bar2} title={`Trend — ${category}`} height={260} />
+                        <EmployeeBarChartData data={dashboardData?.charts?.bar} title="Enrollment Overview" />
                     </Card>
 
                     <Card className="p-4">

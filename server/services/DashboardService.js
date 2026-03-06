@@ -141,6 +141,7 @@ async function buildPersonnelDashboard(schoolId, yearId) {
         },
 
         { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
+        { $match: { $or: [{ "category.DOMAIN_CD": "EmployeeCategory" }, { category: { $exists: false } }] } },
 
         // only keep the EmployeeCategory match (or keep fallback if none)
         {
@@ -173,6 +174,7 @@ async function buildPersonnelDashboard(schoolId, yearId) {
         {
             $group: {
                 _id: null,
+                total: { $sum: "$TOTAL_EMPLOYEES" },
                 ft: { $sum: "$FT_EMPLOYEES" },
                 poc: { $sum: "$POC_EMPLOYEES" },
                 subcontract: {
@@ -187,13 +189,11 @@ async function buildPersonnelDashboard(schoolId, yearId) {
     const comp = compAgg[0] || {};
 
     const compositionDoughnut = {
-        labels: ["FT Employees", "POC Employees", "Subcontractors"],
-        datasets: [
-            {
-                label: "Count",
-                data: [comp.ft || 0, comp.poc || 0, comp.subcontract || 0],
-            }
-        ]
+        labels: ["Full-Time", "Part-Time"],
+        datasets: [{
+            label: "Count",
+            data: [comp.ft || 0, Math.max(0, (comp.total || 0) - (comp.ft || 0))]
+        }]
     };
 
     return {

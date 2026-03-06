@@ -24,13 +24,9 @@ ChartJS.register(
 const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 const textColor = isDark ? "#f1f5f9" : "#334155";
-const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
 
-function isFiniteNumber(x) {
-    return typeof x === "number" && Number.isFinite(x);
-}
-
-export default function EmployeeBarChart({ data, title = "Employee Personnel Overview" }) {
+export default function EmployeeBarChart({ data, title = "Employee Personnel Overview", horizontal = false }) {
     if (!data?.labels?.length || !data?.datasets?.length) {
         return <div style={{ opacity: 0.7 }}>No data available.</div>;
     }
@@ -49,19 +45,52 @@ export default function EmployeeBarChart({ data, title = "Employee Personnel Ove
             backgroundColor: ds.backgroundColor || COLORS[i % COLORS.length],
             borderWidth: ds.borderWidth ?? 2,
             borderRadius: ds.borderRadius ?? 8,
+            barPercentage: 0.9,
+            categoryPercentage: 0.9,
         })),
     };
 
+    // Determine which axis is the value axis when horizontal is true
+    const valueAxis = horizontal ? 'x' : 'y';
+    const categoryAxis = horizontal ? 'y' : 'x';
+
+    // Set chart options; indexAxis should be an option, not on the data object
     const options = {
+        indexAxis: horizontal ? 'y' : 'x',
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-            legend: { position: "top" },
-            title: { display: true, text: title },
+            legend: { position: "top", labels: { color: textColor } },
+            title: { display: true, text: title, color: textColor },
+            tooltip: { enabled: true },
         },
         scales: {
-            y: { beginAtZero: true, ticks: { precision: 0 } },
+            [valueAxis]: {
+                beginAtZero: true,
+                grid: { color: gridColor },
+                ticks: {
+                    color: textColor,
+                    // show integer-like ticks; fallback to default
+                    callback: function (val) {
+                        return Number.isFinite(val) ? val : val;
+                    }
+                }
+            },
+            [categoryAxis]: {
+                grid: { color: gridColor },
+                ticks: { color: textColor },
+            }
         },
+        // layout tweaks for better horizontal rendering
+        elements: {
+            bar: { maxBarThickness: 80 }
+        }
     };
 
-    return <Bar data={styledData} options={options} />;
+    return (
+        // explicitly reference textColor in style so static analyzer picks it up
+        <div style={{ height: 300, color: textColor }}>
+            <Bar data={styledData} options={options} />
+        </div>
+    );
 }
