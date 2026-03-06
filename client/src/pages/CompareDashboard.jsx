@@ -16,11 +16,12 @@ const CLUSTER_OPTIONS = [
     { value: "all", label: "All Schools" },
 ];
 
-function MetricRow({ label, yourValue, peerValue }) {
+function MetricRow({ label, trendDirection, yourValue, peerValue }) {
     const your = Number(yourValue || 0);
     const peer = Number(peerValue || 0);
     const diff = your - peer;
     const up = diff >= 0;
+    const color = (trendDirection === "up" && up) || (trendDirection === "down" && !up) ? TEAL : "#e53e3e";
 
     return (
         <tr className="border-t">
@@ -31,14 +32,14 @@ function MetricRow({ label, yourValue, peerValue }) {
             <td className="px-4 py-2 text-right text-sm text-slate-500">
                 {peer.toFixed(1)}
             </td>
-            <td className="px-4 py-2 text-right text-sm font-semibold" style={{ color: up ? TEAL : "#e53e3e" }}>
+            <td className="px-4 py-2 text-right text-sm font-semibold" style={{ color: color }}>
                 {up ? "▲" : "▼"} {Math.abs(diff).toFixed(1)}
             </td>
         </tr>
     );
 }
 
-function CompareSection({ title, labels, yourValues, peerValues }) {
+function CompareSection({ title, labels, trendDirection, yourValues, peerValues }) {
     return (
         <div style={{
             background: "#fff",
@@ -74,6 +75,7 @@ function CompareSection({ title, labels, yourValues, peerValues }) {
                             <MetricRow
                                 key={label}
                                 label={label}
+                                trendDirection={trendDirection[i]}
                                 yourValue={yourValues[i]}
                                 peerValue={peerValues[i]}
                             />
@@ -205,6 +207,7 @@ export default function CompareDashboard() {
                     <CompareSection
                         title="Admin Support"
                         labels={["Exempt FTE", "Non-Exempt FTE", "Total Admin FTE"]}
+                        trendDirection={["up", "up", "up"]}
                         yourValues={[your.adminSupport?.exemptFte, your.adminSupport?.nonExemptFte, your.adminSupport?.totalAdminSupportFte]}
                         peerValues={[peer.adminSupport?.avgExemptFte, peer.adminSupport?.avgNonExemptFte, peer.adminSupport?.avgAdminSupportFte]}
                     />
@@ -212,6 +215,7 @@ export default function CompareDashboard() {
                     <CompareSection
                         title="Personnel"
                         labels={["Total Employees", "FT Employees", "FTE Only"]}
+                        trendDirection={["up", "up", "up"]}
                         yourValues={[your.personnel?.totalEmployees, your.personnel?.ftEmployees, your.personnel?.fteOnly]}
                         peerValues={[peer.personnel?.avgTotalEmployees, peer.personnel?.avgFTEmployees, peer.personnel?.avgFTEOnly]}
                     />
@@ -219,6 +223,7 @@ export default function CompareDashboard() {
                     <CompareSection
                         title="Enrollment"
                         labels={["Students Added", "Graduated", "Not Returning"]}
+                        trendDirection={["up", "up", "down"]}
                         yourValues={[your.enrollment?.studentsAdded, your.enrollment?.studentsGraduated, your.enrollment?.studentsNotReturn]}
                         peerValues={[peer.enrollment?.avgStudentsAdded, peer.enrollment?.avgStudentsGraduated, peer.enrollment?.avgStudentsNotReturn]}
                     />
