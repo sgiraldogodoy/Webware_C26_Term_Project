@@ -95,6 +95,10 @@ export default function FormPage() {
         label: `Year ${y.SCHOOL_YEAR}`,
     }));
 
+    const yearNumber = useMemo(() => {
+        return yearOptions.find((y) => y.value == yearId)?.label ?? "";
+    }, [yearId, yearOptions]);
+
 
     async function saveDraft() {
         setMsg(""); setErrMsg("");
@@ -111,6 +115,7 @@ export default function FormPage() {
         });
         const j = await res.json();
         if (!res.ok) { setErrMsg(j.error || "Failed to save"); return; }
+        setErrors(j.validation || { personnel: {}, adminSupport: {} });
         setStatus("draft");
         setMsg("Draft saved.");
     }
@@ -149,52 +154,16 @@ export default function FormPage() {
     if (!yearId) return <Page>Loading years...</Page>;
     if (loading) return <Page>Loading form...</Page>;
 
-
-
-//   Complete Annual Benchmarking Form(s)
-//   The system shall display an annual benchmarking form divided into logical sections and steps
-// o User fills in multiple sections (admissions, demographics, facilities, academics, athletics,
-// etc.)
-// o System validates entries (numeric ranges, required fields, logical consistency)
-    // ▪ Type checks (for example, numeric only where appropriate)
-    // ▪ Range checks where sensible (for example, percentages between 0 and 100)
-//   o The system shall not allow final submission until all blocking validation errors are
-//   resolved
-
-// o System highlights errors and offers help
-// o User saves and submits the form
-
-//   Dashboards and Charts
-//   o The system shall present dashboards organized by category (facilities, academics,
-//       athletics, etc.)
-//   o Each dashboard shall:
-//       ▪ Display a selection of KPIs as tiles/cards with summary values
-// ▪ Provide at least two different chart types (for example, bar chart and line chart)
-//   using Chart.js
-//   o The system shall allow users to:
-//       ▪ Filter by year
-// ▪ Select different peer groups (as defined in the dummy data)
-// ▪ View their school’s values against peer group averages, medians, or ranges
-
-
-
-//only employee fields. All employee fields. possibly need enroll-attrition, but not sure
-
-    // be able to choose year.
-    // shoudl be able to choose year
-
-
-
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-5xl px-6 py-10">
-                <Navbar role= {user.role}></Navbar>
+                <Navbar role={user.role} />
 
                 <div className="flex items-start justify-between mt-6">
                     <div>
                         <h1 className="text-3xl font-semibold text-slate-900">Benchmarking Form</h1>
                         <p className="mt-1 text-sm text-slate-600">
-                            Status: <span className="font-semibold">{status}</span> · School: {user.schoolId} · Year: {yearId}
+                            Status: <span className="font-semibold">{status}</span> · School: {user.schoolId} · {yearNumber}
                         </p>
                     </div>
 
@@ -316,7 +285,6 @@ export default function FormPage() {
                                     <Input type="number" min="0" step="0.01" value={adminSupport.FTE_NONEXEMPT}
                                            onChange={(e) => setAdminSupport(a => ({ ...a, FTE_NONEXEMPT: e.target.value }))} />
                                 </FormField>
-
                             </CardContent>
                         </Card>
                     )}
