@@ -16,7 +16,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) navigate(data.role === "ADMIN" ? "/admin-dashboard" : "/dashboard");
+        if (token) navigate(/*data.role === "ADMIN" ? "/admin-dashboard" : */"/dashboard");
     }, [navigate]);
 
     async function handleSubmit(e) {

@@ -10,13 +10,18 @@ export default function Navbar(props) {
         nav_links = [
             { label: "Admin Dashboard", to: "/admin-dashboard", enabled: true },
             { label: "Compare", to: "/compare", enabled: false },
+            { label: "Profile", to: "/profile", enabled: true },
+            { label: "Settings", to: "/settings", enabled: true },
+            { label: "Manage Users", to: "/admin/users", enabled: true },
         ];
     } else if (props.role === "SCHOOL") {
         nav_links = [
             { label: "Dashboard", to: "/dashboard", enabled: true },
             { label: "Benchmarking Form", to: "/benchmark-form", enabled: false },
             { label: "Compare", to: "/compare", enabled: false },
-            { label: "School Dashboard", to: "/school-dashboard", enabled: true }
+            { label: "School Dashboard", to: "/school-dashboard", enabled: true },
+            { label: "Profile", to: "/profile", enabled: true },
+            { label: "Settings", to: "/settings", enabled: true }
         ];
     } else {
         console.log("error in role, nav_links is null: " + props.role);
@@ -26,7 +31,7 @@ export default function Navbar(props) {
         <nav className="justify-between">
 
             <ul className="flex items-center gap-5">
-                {nav_links.map(({label, to, enabled}) => {
+                {nav_links && nav_links.map(({label, to, enabled}) => {
                     const isActive = location.pathname === to;
 
                     if (!enabled) {

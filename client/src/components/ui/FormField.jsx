@@ -18,6 +18,7 @@ export default function FormField({ label, help, error, children }) {
             text-sm font-medium
             text-slate-700
             dark:text-slate-200
+            mr-5
           "
                 >
                     {label}
