@@ -81,7 +81,7 @@ export async function getSchoolsService() {
     const query = { ACTIVE_INT: "Y" };
 
     const schools = await School.find(query)
-        .select({ ID: 1, NAME_TX: 1, REGION_CD: 1, GROUP_CD: 1, GENDER_COMPOSITION_CD: 1 })
+        .select({ ID: 1, NAME_TX: 1, REGION_CD: 1 })
         .sort({ NAME_TX: 1 })
         .lean();
 
@@ -89,8 +89,6 @@ export async function getSchoolsService() {
             id: s.ID,
             name: s.NAME_TX,
             region: s.REGION_CD,
-            group: s.GROUP_CD,
-            gender: s.GENDER_COMPOSITION_CD,
         }));
    return {status: 200, data};
 }
