@@ -77,19 +77,15 @@ export default function Navbar({ role }) {
     if (role === "ADMIN") {
         nav_links = [
             { label: "Admin Dashboard", to: "/admin-dashboard", enabled: true },
-            { label: "Compare", to: "/compare", enabled: false },
-            { label: "Profile", to: "/profile", enabled: true },
-            { label: "Settings", to: "/settings", enabled: true },
+            { label: "Compare", to: "/compare-dashboard", enabled: true },
             { label: "Manage Users", to: "/admin/users", enabled: true },
         ];
     } else if (role === "SCHOOL") {
         nav_links = [
-            { label: "Dashboard", to: "/dashboard", enabled: true },
-            { label: "Benchmarking Form", to: "/benchmark-form", enabled: false },
-            { label: "Compare", to: "/compare", enabled: false },
-            { label: "School Dashboard", to: "/school-dashboard", enabled: true },
-            { label: "Profile", to: "/profile", enabled: true },
-            { label: "Settings", to: "/settings", enabled: true }
+            { label: "School Dashboard", to: "/dashboard", enabled: true },
+            { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
+            { label: "Compare", to: "/compare-dashboard", enabled: true },
+            // { label: "School Dashboard", to: "/school-dashboard", enabled: true },
         ];
     } else {
         console.log("error in role, nav_links is null: " + role);
@@ -190,6 +186,23 @@ export default function Navbar({ role }) {
                                 transition
                                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
                             >
+                                <MenuItem>
+                                    <Link
+                                        to="/profile"
+                                        className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                                    >
+                                        Your Profile
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem>
+                                    <Link
+                                        to="/settings"
+                                        className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
+                                    >
+                                        Settings
+                                    </Link>
+                                </MenuItem>
+                                <div className="border-t border-gray-100 my-1" />
                                 <MenuItem>
                                     <button
                                         onClick={handleLogout}
