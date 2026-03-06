@@ -15,9 +15,8 @@ export default function LoginPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const role = localStorage.getItem("role"); // 👈 read role here
         const token = localStorage.getItem("token");
-        if (token) navigate(role === "ADMIN" ? "/admin-dashboard" : "/dashboard");
+        if (token) navigate(/*data.role === "ADMIN" ? "/admin-dashboard" : */"/dashboard");
     }, [navigate]);
 
     async function handleSubmit(e) {

@@ -78,6 +78,9 @@ export default function Navbar({ role }) {
         nav_links = [
             { label: "Admin Dashboard", to: "/admin-dashboard", enabled: true },
             { label: "Compare", to: "/compare", enabled: false },
+            { label: "Profile", to: "/profile", enabled: true },
+            { label: "Settings", to: "/settings", enabled: true },
+            { label: "Manage Users", to: "/admin/users", enabled: true },
         ];
     } else if (role === "SCHOOL") {
         nav_links = [
@@ -85,6 +88,8 @@ export default function Navbar({ role }) {
             { label: "Benchmarking Form", to: "/benchmark-form", enabled: false },
             { label: "Compare", to: "/compare", enabled: false },
             { label: "School Dashboard", to: "/school-dashboard", enabled: true },
+            { label: "Profile", to: "/profile", enabled: true },
+            { label: "Settings", to: "/settings", enabled: true }
         ];
     } else {
         console.log("error in role, nav_links is null: " + role);
@@ -127,7 +132,7 @@ export default function Navbar({ role }) {
 
                         <div className="hidden sm:ml-6 sm:block">
                             <div className="flex space-x-4">
-                                {nav_links.map(({ label, to, enabled }) => {
+                                {nav_links && nav_links.map(({ label, to, enabled }) => {
                                     const isActive = location.pathname === to;
 
                                     if (!enabled) {

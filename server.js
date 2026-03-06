@@ -8,10 +8,11 @@ import { fileURLToPath } from "url";
 //Import Schemas
 import PeerGroup from "./server/models/PeerGroup.js";
 import dashboardRoutes from "./server/routes/DashboardRoutes.js";
-import compareDashboardRoutes from "./server/routes/CompareDashboardRoutes.js";
 import cors from "cors";
 import loginRoutes from "./server/routes/LoginRoutes.js";
 import School from "./server/models/School.js";
+import compareDashboardRoutes from "./server/routes/compareDashboardRoutes.js";
+import userRoutes from "./server/routes/UserRoutes.js";
 
 dotenv.config();
 
@@ -74,6 +75,8 @@ app.use("/api/dashboard", auth, dashboardRoutes);
 app.use("/api", loginRoutes);
 
 app.use("/api/compare-dashboard", auth, compareDashboardRoutes);
+
+app.use("/api/users", auth, userRoutes);
 
 // dashboard endpoints
 // helper functions
