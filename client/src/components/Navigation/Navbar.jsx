@@ -83,7 +83,7 @@ export default function Navbar({ role }) {
     } else if (role === "SCHOOL") {
         nav_links = [
             { label: "Dashboard", to: "/dashboard", enabled: true },
-            { label: "Benchmarking Form", to: "/benchmark-form", enabled: false },
+            { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
             { label: "Form", to: "/form", enabled: true },
             { label: "Compare", to: "/compare", enabled: false },
             { label: "School Dashboard", to: "/school-dashboard", enabled: true },

@@ -1,4 +1,4 @@
-import {validatePassword, validateUsername} from "../registerValidator.js";
+import {validatePassword, validateUsername} from "../middleware/registerValidator.js";
 import School from "../models/School.js";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";

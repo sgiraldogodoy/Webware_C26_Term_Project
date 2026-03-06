@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import User from "../models/User.js";
 import School from "../models/School.js";
-import { validatePassword, validateUsername } from "../registerValidator.js";
+import { validatePassword, validateUsername } from "../middleware/registerValidator.js";
 
 export async function getMeService({ user }) {
     if (!user?.id) return { status: 401, error: "Not authenticated." };

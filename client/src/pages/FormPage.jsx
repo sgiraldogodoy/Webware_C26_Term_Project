@@ -8,6 +8,8 @@ import FormField from "../components/ui/FormField.jsx";
 import Button from "../components/ui/Button.jsx";
 import Alert from "../components/ui/Alert.jsx";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/Card.jsx";
+import { validateForm } from "../lib/formValidator.js";
+
 
 const STEPS = ["Personnel", "Admin Support", "Review"];
 
@@ -22,7 +24,14 @@ export default function FormPage() {
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    const [personnel, setPersonnel] = useState({ TOTAL_EMPLOYEES: 0, FT_EMPLOYEES: 0, POC_EMPLOYEES: 0 });
+    const [personnel, setPersonnel] = useState({
+        TOTAL_EMPLOYEES: 0,
+        FT_EMPLOYEES: 0,
+        POC_EMPLOYEES: 0,
+        SUBCONTRACT_NUM: 0,
+        SUBCONTRACT_FTE: 0,
+        FTE_ONLY_NUM: 0
+    });
     const [adminSupport, setAdminSupport] = useState({ NR_EXEMPT: 0, NR_NONEXEMPT: 0, FTE_EXEMPT: 0, FTE_NONEXEMPT: 0 });
 
     const [status, setStatus] = useState("draft");
@@ -89,6 +98,12 @@ export default function FormPage() {
 
     async function saveDraft() {
         setMsg(""); setErrMsg("");
+
+        // Validate client-side before saving
+        const validation = validateForm(personnel, adminSupport);
+        setErrors(validation);
+
+        // Even with errors, allow draft save but show errors to user
         const res = await fetch("/api/form/draft", {
             method: "PUT",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -96,13 +111,23 @@ export default function FormPage() {
         });
         const j = await res.json();
         if (!res.ok) { setErrMsg(j.error || "Failed to save"); return; }
-        setErrors(j.validation || { personnel: {}, adminSupport: {} });
         setStatus("draft");
         setMsg("Draft saved.");
     }
 
     async function submit() {
         setMsg(""); setErrMsg("");
+
+        // Validate before submitting
+        const validation = validateForm(personnel, adminSupport);
+        setErrors(validation);
+
+        // Block submission if there are validation errors
+        if (validation.hasErrors) {
+            setErrMsg("Cannot submit form with validation errors. Please fix them first.");
+            return;
+        }
+
         const res = await fetch("/api/form/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -124,10 +149,46 @@ export default function FormPage() {
     if (!yearId) return <Page>Loading years...</Page>;
     if (loading) return <Page>Loading form...</Page>;
 
+
+
+//   Complete Annual Benchmarking Form(s)
+//   The system shall display an annual benchmarking form divided into logical sections and steps
+// o User fills in multiple sections (admissions, demographics, facilities, academics, athletics,
+// etc.)
+// o System validates entries (numeric ranges, required fields, logical consistency)
+    // ▪ Type checks (for example, numeric only where appropriate)
+    // ▪ Range checks where sensible (for example, percentages between 0 and 100)
+//   o The system shall not allow final submission until all blocking validation errors are
+//   resolved
+
+// o System highlights errors and offers help
+// o User saves and submits the form
+
+//   Dashboards and Charts
+//   o The system shall present dashboards organized by category (facilities, academics,
+//       athletics, etc.)
+//   o Each dashboard shall:
+//       ▪ Display a selection of KPIs as tiles/cards with summary values
+// ▪ Provide at least two different chart types (for example, bar chart and line chart)
+//   using Chart.js
+//   o The system shall allow users to:
+//       ▪ Filter by year
+// ▪ Select different peer groups (as defined in the dummy data)
+// ▪ View their school’s values against peer group averages, medians, or ranges
+
+
+
+//only employee fields. All employee fields. possibly need enroll-attrition, but not sure
+
+    // be able to choose year.
+    // shoudl be able to choose year
+
+
+
     return (
         <Page className="items-start justify-center">
             <div className="w-full max-w-5xl px-6 py-10">
-                <Navbar />
+                <Navbar role= {user.role}></Navbar>
 
                 <div className="flex items-start justify-between mt-6">
                     <div>
@@ -173,7 +234,7 @@ export default function FormPage() {
                                 <CardDescription>Enter employee counts for this year.</CardDescription>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormField label="Total employees" help="All employees at the school (headcount)." error={errors.personnel?.TOTAL_EMPLOYEES}>
+                                <FormField label="Total employees" help="Headcount of All employees at the school." error={errors.personnel?.TOTAL_EMPLOYEES}>
                                     <Input
                                         type="number"
                                         min="0"
@@ -191,12 +252,38 @@ export default function FormPage() {
                                     />
                                 </FormField>
 
-                                <FormField label="POC employees" help="People of Color employees (headcount)." error={errors.personnel?.POC_EMPLOYEES}>
+                                <FormField label="POC employees" help="Headcount of People of Color employees." error={errors.personnel?.POC_EMPLOYEES}>
                                     <Input
                                         type="number"
                                         min="0"
                                         value={personnel.POC_EMPLOYEES}
                                         onChange={(e) => setPersonnel(p => ({ ...p, POC_EMPLOYEES: e.target.value }))}
+                                    />
+                                </FormField>
+
+                                <FormField label="Subcontractors" help="HeadCount of Subcontractors." error={errors.personnel?.SUBCONTRACT_NUM}>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        value={personnel.SUBCONTRACT_NUM}
+                                        onChange={(e) => setPersonnel(p => ({ ...p, SUBCONTRACT_NUM: e.target.value }))}
+                                    />
+                                </FormField>
+                                <FormField label="FTE Subcontractors" help="Headcount of FTE Subcontractors." error={errors.personnel?.SUBCONTRACT_FTE}>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        value={personnel.SUBCONTRACT_FTE}
+                                        onChange={(e) => setPersonnel(p => ({ ...p, SUBCONTRACT_FTE: e.target.value }))}
+                                    />
+                                </FormField>
+
+                                <FormField label="FTE Employees" help="Headcount of FTE Employees." error={errors.personnel?.FTE_ONLY_NUM}>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        value={personnel.FTE_ONLY_NUM}
+                                        onChange={(e) => setPersonnel(p => ({ ...p, FTE_ONLY_NUM: e.target.value }))}
                                     />
                                 </FormField>
                             </CardContent>
@@ -229,6 +316,7 @@ export default function FormPage() {
                                     <Input type="number" min="0" step="0.01" value={adminSupport.FTE_NONEXEMPT}
                                            onChange={(e) => setAdminSupport(a => ({ ...a, FTE_NONEXEMPT: e.target.value }))} />
                                 </FormField>
+
                             </CardContent>
                         </Card>
                     )}
@@ -246,6 +334,9 @@ export default function FormPage() {
                                         <div>Total: {personnel.TOTAL_EMPLOYEES}</div>
                                         <div>Full-time: {personnel.FT_EMPLOYEES}</div>
                                         <div>POC: {personnel.POC_EMPLOYEES}</div>
+                                        <div>Subcontractors: {personnel.SUBCONTRACT_NUM}</div>
+                                        <div>FTE Subcontractors: {personnel.SUBCONTRACT_FTE}</div>
+                                        <div>FTE Employees: {personnel.FTE_ONLY_NUM}</div>
                                     </div>
 
                                     <div className="rounded-md bg-slate-50 p-4 ring-1 ring-slate-200">
