@@ -3,6 +3,10 @@ import EmployeePersonnel from "../models/EmployeePersonnel.js";
 import EmployeeAdminSupport from "../models/EmployeeAdminSupport.js";
 import schoolYear from "../models/SchoolYear.js";
 
+const toNum = (field) => ({
+    $convert: { input: field, to: "double", onError: 0, onNull: 0 }
+});
+
 export async function getDashboardData({ schoolId, yearId, category }) {
     switch (category) {
         case "Enrollment":
@@ -145,9 +149,9 @@ async function buildPersonnelDashboard(schoolId, yearId) {
             {
                 $group: {
                     _id: null,
-                    totalEmployees: { $sum: "$TOTAL_EMPLOYEES" },
-                    ftEmployees: { $sum: "$FT_EMPLOYEES" },
-                    subcontractors: { $sum: "$SUBCONTRACT_NUM" }
+                    totalEmployees: { $sum: toNum("$TOTAL_EMPLOYEES") },
+                    ftEmployees: { $sum: toNum("$FT_EMPLOYEES") },
+                    subcontractors: { $sum: toNum("$SUBCONTRACT_NUM") }
                 }
             }
         ]),
@@ -156,9 +160,9 @@ async function buildPersonnelDashboard(schoolId, yearId) {
             {
                 $group: {
                     _id: null,
-                    totalEmployees: { $sum: "$TOTAL_EMPLOYEES" },
-                    ftEmployees: { $sum: "$FT_EMPLOYEES" },
-                    subcontractors: { $sum: "$SUBCONTRACT_NUM" }
+                    totalEmployees: { $sum: toNum("$TOTAL_EMPLOYEES") },
+                    ftEmployees: { $sum: toNum("$FT_EMPLOYEES") },
+                    subcontractors: { $sum: toNum("$SUBCONTRACT_NUM") }
                 }
             }
         ])
@@ -170,7 +174,7 @@ async function buildPersonnelDashboard(schoolId, yearId) {
     // trend line across all years
     const trend = await EmployeePersonnel.aggregate([
         { $match: { SCHOOL_ID: schoolId } },
-        { $group: { _id: "$SCHOOL_YR_ID", totalEmployees: { $sum: "$TOTAL_EMPLOYEES" } } },
+        { $group: { _id: "$SCHOOL_YR_ID", totalEmployees: { $sum: toNum("$TOTAL_EMPLOYEES") } } },
         { $sort: { _id: 1 } }
     ]);
     const yearIds = trend.map(r => r._id);
@@ -193,7 +197,7 @@ async function buildPersonnelDashboard(schoolId, yearId) {
     // by category bar
     const byCategory = await EmployeePersonnel.aggregate([
         { $match: { SCHOOL_ID: schoolId, SCHOOL_YR_ID: yearId } },
-        { $group: { _id: "$EMP_CAT_CD", totalEmployees: { $sum: "$TOTAL_EMPLOYEES" }, ftEmployees: { $sum: "$FT_EMPLOYEES" } } },
+        { $group: { _id: "$EMP_CAT_CD", totalEmployees: { $sum: toNum("$TOTAL_EMPLOYEES") }, ftEmployees: { $sum: toNum("$FT_EMPLOYEES")} } },
         { $lookup: { from: "refCode", localField: "_id", foreignField: "CODE_CD", as: "category" } },
         { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
         { $match: { $or: [{ "category.DOMAIN_CD": "EmployeeCategory" }, { category: { $exists: false } }] } },
@@ -254,11 +258,11 @@ async function buildAdminSupportDashboard(schoolId, yearId) {
     const [current, previous] = await Promise.all([
         EmployeeAdminSupport.aggregate([
             { $match: { SCHOOL_ID: schoolId, SCHOOL_YR_ID: yearId } },
-            { $group: { _id: null, exempt: { $sum: "$FTE_EXEMPT" }, nonExempt: { $sum: "$FTE_NONEXEMPT" } } }
+            { $group: { _id: null, exempt: { $sum: toNum("$FTE_EXEMPT") }, nonExempt: { $sum: toNum("$FTE_NONEXEMPT") } } }
         ]),
         EmployeeAdminSupport.aggregate([
             { $match: { SCHOOL_ID: schoolId, SCHOOL_YR_ID: yearId - 1 } },
-            { $group: { _id: null, exempt: { $sum: "$FTE_EXEMPT" }, nonExempt: { $sum: "$FTE_NONEXEMPT" } } }
+            { $group: { _id: null, exempt: { $sum: toNum("$FTE_EXEMPT") }, nonExempt: { $sum: toNum("$FTE_NONEXEMPT") } } }
         ])
     ]);
 
@@ -270,7 +274,7 @@ async function buildAdminSupportDashboard(schoolId, yearId) {
 
     const trend = await EmployeeAdminSupport.aggregate([
         { $match: { SCHOOL_ID: schoolId } },
-        { $group: { _id: "$SCHOOL_YR_ID", exempt: { $sum: "$FTE_EXEMPT" }, nonExempt: { $sum: "$FTE_NONEXEMPT" } } },
+        { $group: { _id: "$SCHOOL_YR_ID", exempt: { $sum: toNum("$FTE_EXEMPT") }, nonExempt: { $sum: toNum("$FTE_NONEXEMPT") } } },
         { $sort: { _id: 1 } }
     ]);
 
@@ -300,8 +304,8 @@ async function buildAdminSupportDashboard(schoolId, yearId) {
         {
             $group: {
                 _id: "$ADMIN_STAFF_FUNC_CD",
-                exempt: { $sum: "$FTE_EXEMPT" },
-                nonExempt: { $sum: "$FTE_NONEXEMPT" },
+                exempt: { $sum: toNum("$FTE_EXEMPT") },
+                nonExempt: { $sum: toNum("$FTE_NONEXEMPT") },
                 nrExempt: { $sum: "$NR_EXEMPT" },
                 nrNonExempt: { $sum: "$NR_NONEXEMPT" }
             }

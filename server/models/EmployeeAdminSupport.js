@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const employeeAdminSupportSchema = new mongoose.Schema(
     {
+        ID: {
+            type: Number,
+            required: true,
+            index: true
+        },
+
         SCHOOL_ID: {
             type: Number,
             required: true,
@@ -14,13 +20,16 @@ const employeeAdminSupportSchema = new mongoose.Schema(
             index: true
         },
 
-        ADMIN_STAFF_FUNC_CD: String,
+        ADMIN_STAFF_FUNC_CD: {
+            type: String,
+            required: true
+        },
 
         NR_EXEMPT: Number,
         NR_NONEXEMPT: Number,
 
-        FTE_EXEMPT: Number,
-        FTE_NONEXEMPT: Number,
+        FTE_EXEMPT: mongoose.Schema.Types.Decimal128,
+        FTE_NONEXEMPT: mongoose.Schema.Types.Decimal128,
 
         LOCK_ID: Number,
         UPDATE_USER_TX: String,

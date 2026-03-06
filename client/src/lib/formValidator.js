@@ -1,100 +1,127 @@
-// validator for form
-
-export function validatePersonnel(personnel) {
-        const errors = {};
-
-        // Number Validator
-        const isValidNumber = (number) => {
-            const num = Number(number);
-            return Number.isFinite(num) && num >= 0;
-        }
-
-        //total employees
-        if (!isValidNumber(personnel.TOTAL_EMPLOYEES)) {
-            errors.TOTAL_EMPLOYEES = "Total employees must be a valid number (≥ 0)";
-        } else if (Number(personnel.TOTAL_EMPLOYEES) < 1) {
-            errors.TOTAL_EMPLOYEES = "Total employees must be at least 1";
-        }
-
-        //full time employees
-        if (!isValidNumber(personnel.FT_EMPLOYEES)) {
-            errors.FT_EMPLOYEES = "Full-time employees must be a valid number (≥ 0)";
-        } else if (Number(personnel.FT_EMPLOYEES) > Number(personnel.TOTAL_EMPLOYEES)) {
-            errors.FT_EMPLOYEES = "Full-time employees cannot exceed total employees";
-        }
-
-        //poc employees
-        if (!isValidNumber(personnel.POC_EMPLOYEES)) {
-            errors.POC_EMPLOYEES = "POC employees must be a valid number (≥ 0)";
-        } else if (Number(personnel.POC_EMPLOYEES) > Number(personnel.TOTAL_EMPLOYEES)) {
-            errors.POC_EMPLOYEES = "POC employees cannot exceed total employees";
-        }
-
-        //subcontractors
-        if (!isValidNumber(personnel.SUBCONTRACT_NUM)) {
-            errors.SUBCONTRACT_NUM = "Subcontractors must be a valid number (≥ 0)";
-        } else if (Number(personnel.SUBCONTRACT_NUM) > Number(personnel.TOTAL_EMPLOYEES)) {
-            errors.SUBCONTRACT_NUM = "Subcontractors cannot exceed total employees";
-        }
-
-        //fte subcontractors
-        if (!isValidNumber(personnel.SUBCONTRACT_FTE)) {
-            errors.SUBCONTRACT_FTE = "FTE subcontractors must be a valid number (≥ 0)";
-        } else if (Number(personnel.SUBCONTRACT_FTE) > Number(personnel.SUBCONTRACT_NUM)) {
-            errors.SUBCONTRACT_FTE = "FTE subcontractors cannot exceed total subcontractors";
-        }
-
-        //fte only employees
-        if (!isValidNumber(personnel.FTE_ONLY_NUM)) {
-            errors.FTE_ONLY_NUM = "FTE employees must be a valid number (≥ 0)";
-        } else if (Number(personnel.FTE_ONLY_NUM) > Number(personnel.TOTAL_EMPLOYEES)) {
-            errors.FTE_ONLY_NUM = "FTE employees cannot exceed total employees";
-        }
-
-    return errors;
-
+function isValidNumber(value) {
+    const num = Number(value);
+    return Number.isFinite(num) && num >= 0;
 }
 
+function isZero(value) {
+    return Number(value) === 0;
+}
 
+function isPersonnelRowEmpty(row) {
+    return (
+        isZero(row.TOTAL_EMPLOYEES) &&
+        isZero(row.FT_EMPLOYEES) &&
+        isZero(row.POC_EMPLOYEES) &&
+        isZero(row.SUBCONTRACT_NUM) &&
+        isZero(row.SUBCONTRACT_FTE) &&
+        isZero(row.FTE_ONLY_NUM)
+    );
+}
 
+function isAdminSupportRowEmpty(row) {
+    return (
+        isZero(row.NR_EXEMPT) &&
+        isZero(row.NR_NONEXEMPT) &&
+        isZero(row.FTE_EXEMPT) &&
+        isZero(row.FTE_NONEXEMPT)
+    );
+}
 
-export function validateAdminSupport(adminSupport) {
+export function validatePersonnelRow(row) {
     const errors = {};
 
-    const isValidNumber = (number) => {
-        const num = Number(number);
-        return Number.isFinite(num) && num >= 0;
+    if (!row?.EMP_CAT_CD) {
+        errors.EMP_CAT_CD = "Employee category is required.";
+        return errors;
     }
 
-    // NR_EXEMPT - Required, non-negative
-    if (!isValidNumber(adminSupport.NR_EXEMPT)) {
-        errors.NR_EXEMPT = "NR Exempt must be a valid number (≥ 0)";
+    // allow completely unused rows
+    if (isPersonnelRowEmpty(row)) {
+        return errors;
     }
 
-     // NR_NONEXEMPT - Required, non-negative
-     if (!isValidNumber(adminSupport.NR_NONEXEMPT)) {
-        errors.NR_NONEXEMPT = "NR Non-Exempt must be a valid number (≥ 0)";
+    if (!isValidNumber(row.TOTAL_EMPLOYEES)) {
+        errors.TOTAL_EMPLOYEES = "Total employees must be a valid number (≥ 0).";
+    } else if (Number(row.TOTAL_EMPLOYEES) < 1) {
+        errors.TOTAL_EMPLOYEES = "Total employees must be at least 1 when this category is used.";
     }
 
-     if(!isValidNumber(adminSupport.FTE_EXEMPT)){
-        errors.FTE_EXEMPT = "FTE Exempt must be a valid number (≥ 0)";
+    if (!isValidNumber(row.FT_EMPLOYEES)) {
+        errors.FT_EMPLOYEES = "Full-time employees must be a valid number (≥ 0).";
+    } else if (Number(row.FT_EMPLOYEES) > Number(row.TOTAL_EMPLOYEES)) {
+        errors.FT_EMPLOYEES = "Full-time employees cannot exceed total employees.";
+    }
 
-     }
+    if (!isValidNumber(row.POC_EMPLOYEES)) {
+        errors.POC_EMPLOYEES = "Employees identifying as People of Color must be a valid number (≥ 0).";
+    } else if (Number(row.POC_EMPLOYEES) > Number(row.TOTAL_EMPLOYEES)) {
+        errors.POC_EMPLOYEES = "Employees identifying as People of Color cannot exceed total employees.";
+    }
 
-     if (!isValidNumber(adminSupport.FTE_NONEXEMPT)){
-        errors.FTE_NONEXEMPT = "FTE Non-Exempt must be a valid number (≥ 0)";
-     }
+    if (!isValidNumber(row.SUBCONTRACT_NUM)) {
+        errors.SUBCONTRACT_NUM = "Subcontractors must be a valid number (≥ 0).";
+    } else if (Number(row.SUBCONTRACT_NUM) > Number(row.TOTAL_EMPLOYEES)) {
+        errors.SUBCONTRACT_NUM = "Subcontractors cannot exceed total employees.";
+    }
 
-return errors;
+    if (!isValidNumber(row.SUBCONTRACT_FTE)) {
+        errors.SUBCONTRACT_FTE = "Subcontractor full-time equivalent must be a valid number (≥ 0).";
+    } else if (Number(row.SUBCONTRACT_FTE) > Number(row.SUBCONTRACT_NUM)) {
+        errors.SUBCONTRACT_FTE = "Subcontractor full-time equivalent cannot exceed subcontractor headcount.";
+    }
+
+    if (!isValidNumber(row.FTE_ONLY_NUM)) {
+        errors.FTE_ONLY_NUM = "Employee full-time equivalent must be a valid number (≥ 0).";
+    } else if (Number(row.FTE_ONLY_NUM) > Number(row.TOTAL_EMPLOYEES)) {
+        errors.FTE_ONLY_NUM = "Employee full-time equivalent cannot exceed total employees.";
+    }
+
+    return errors;
 }
 
-export function validateForm(personnel, adminSupport) {
-    const personnelErrors = validatePersonnel(personnel);
-    const adminSupportErrors = validateAdminSupport(adminSupport);
+export function validateAdminSupportRow(row) {
+    const errors = {};
+
+    if (!row?.ADMIN_STAFF_FUNC_CD) {
+        errors.ADMIN_STAFF_FUNC_CD = "Administrative staff function is required.";
+        return errors;
+    }
+
+    // allow completely unused rows
+    if (isAdminSupportRowEmpty(row)) {
+        return errors;
+    }
+
+    if (!isValidNumber(row.NR_EXEMPT)) {
+        errors.NR_EXEMPT = "Exempt employees must be a valid number (≥ 0).";
+    }
+
+    if (!isValidNumber(row.NR_NONEXEMPT)) {
+        errors.NR_NONEXEMPT = "Non-exempt employees must be a valid number (≥ 0).";
+    }
+
+    if (!isValidNumber(row.FTE_EXEMPT)) {
+        errors.FTE_EXEMPT = "Exempt full-time equivalent must be a valid number (≥ 0).";
+    }
+
+    if (!isValidNumber(row.FTE_NONEXEMPT)) {
+        errors.FTE_NONEXEMPT = "Non-exempt full-time equivalent must be a valid number (≥ 0).";
+    }
+
+    return errors;
+}
+
+export function validateForm(personnelRows, adminSupportRows) {
+    const personnel = personnelRows.map(validatePersonnelRow);
+    const adminSupport = adminSupportRows.map(validateAdminSupportRow);
+
+    const hasErrors =
+        personnel.some((rowErrors) => Object.keys(rowErrors).length > 0) ||
+        adminSupport.some((rowErrors) => Object.keys(rowErrors).length > 0);
 
     return {
-        personnel: personnelErrors,
-        adminSupport: adminSupportErrors,
-        hasErrors: Object.keys(personnelErrors).length > 0 || Object.keys(adminSupportErrors).length > 0
+        personnel,
+        adminSupport,
+        hasErrors,
     };
 }
