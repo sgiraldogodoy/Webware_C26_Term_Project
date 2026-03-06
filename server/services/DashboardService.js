@@ -1,6 +1,7 @@
 import EnrollAttrition from "../models/EnrollAttrition.js";
 import EmployeePersonnel from "../models/EmployeePersonnel.js";
 import EmployeeAdminSupport from "../models/EmployeeAdminSupport.js";
+import schoolYear from "../models/SchoolYear.js";
 
 export async function getDashboardData({ schoolId, yearId, category }) {
     switch (category) {
@@ -66,8 +67,20 @@ async function buildEnrollmentDashboard(schoolId, yearId) {
         { $sort: { _id: 1 } }
     ]);
 
+    const yearIds = trend.map(r => r._id);
+
+    const yearDocs = await schoolYear.find(
+        { ID: { $in: yearIds } },
+        { _id: 0, ID: 1, SCHOOL_YEAR: 1 }
+    );
+
+    const yearMap = {};
+    yearDocs.forEach(doc => {
+        yearMap[doc.ID] = doc.SCHOOL_YEAR;
+    });
+
     const line = {
-        labels: trend.map(r => String(r._id)),
+        labels: trend.map(r => yearMap[r._id] ? String(yearMap[r._id]) : String(r._id)),
         datasets: [
             { label: "Students Added", data: trend.map(r => r.studentsAdded || 0) },
             { label: "Graduated", data: trend.map(r => r.studentsGraduated || 0) },
@@ -105,9 +118,9 @@ async function buildEnrollmentDashboard(schoolId, yearId) {
 
     return {
         kpis: [
-            { label: "Students Added", value: data.studentsAdded || 0, ...calcTrend(data.studentsAdded, prev.studentsAdded) },
-            { label: "Students Not Returning", value: data.studentsNotReturning || 0, ...calcTrend(data.studentsNotReturning, prev.studentsNotReturning) },
-            { label: "Students Graduated", value: data.studentsGraduated || 0, ...calcTrend(data.studentsGraduated, prev.studentsGraduated) }
+            { label: "Students Added", value: data.studentsAdded || 0, ...calcTrend(data.studentsAdded, prev.studentsAdded), trendDirection: "up" },
+            { label: "Students Not Returning", value: data.studentsNotReturning || 0, ...calcTrend(data.studentsNotReturning, prev.studentsNotReturning), trendDirection: "down"  },
+            { label: "Students Graduated", value: data.studentsGraduated || 0, ...calcTrend(data.studentsGraduated, prev.studentsGraduated), trendDirection: "up"  }
         ],
         charts: {
             bar: {
@@ -160,9 +173,20 @@ async function buildPersonnelDashboard(schoolId, yearId) {
         { $group: { _id: "$SCHOOL_YR_ID", totalEmployees: { $sum: "$TOTAL_EMPLOYEES" } } },
         { $sort: { _id: 1 } }
     ]);
+    const yearIds = trend.map(r => r._id);
+
+    const yearDocs = await schoolYear.find(
+        { ID: { $in: yearIds } },
+        { _id: 0, ID: 1, SCHOOL_YEAR: 1 }
+    );
+
+    const yearMap = {};
+    yearDocs.forEach(doc => {
+        yearMap[doc.ID] = doc.SCHOOL_YEAR;
+    });
 
     const line = {
-        labels: trend.map(r => String(r._id)),
+        labels: trend.map(r => yearMap[r._id] ? String(yearMap[r._id]) : String(r._id)),
         datasets: [{ label: "Total Employees", data: trend.map(r => r.totalEmployees || 0) }]
     };
 
@@ -209,9 +233,9 @@ async function buildPersonnelDashboard(schoolId, yearId) {
 
     return {
         kpis: [
-            { label: "Total Employees", value: data.totalEmployees || 0, ...calcTrend(data.totalEmployees, prev.totalEmployees) },
-            { label: "FTEs", value: data.ftEmployees || 0, ...calcTrend(data.ftEmployees, prev.ftEmployees) },
-            { label: "Subcontractors", value: data.subcontractors || 0, ...calcTrend(data.subcontractors, prev.subcontractors) }
+            { label: "Total Employees", value: data.totalEmployees || 0, ...calcTrend(data.totalEmployees, prev.totalEmployees), trendDirection: "up"  },
+            { label: "FTEs", value: data.ftEmployees || 0, ...calcTrend(data.ftEmployees, prev.ftEmployees), trendDirection: "up"  },
+            { label: "Subcontractors", value: data.subcontractors || 0, ...calcTrend(data.subcontractors, prev.subcontractors), trendDirection: "up"  }
         ],
         charts: {
             bar: {
@@ -250,8 +274,20 @@ async function buildAdminSupportDashboard(schoolId, yearId) {
         { $sort: { _id: 1 } }
     ]);
 
+    const yearIds = trend.map(r => r._id);
+
+    const yearDocs = await schoolYear.find(
+        { ID: { $in: yearIds } },
+        { _id: 0, ID: 1, SCHOOL_YEAR: 1 }
+    );
+
+    const yearMap = {};
+    yearDocs.forEach(doc => {
+        yearMap[doc.ID] = doc.SCHOOL_YEAR;
+    });
+
     const line = {
-        labels: trend.map(r => String(r._id)),
+        labels: trend.map(r => yearMap[r._id] ? String(yearMap[r._id]) : String(r._id)),
         datasets: [
             { label: "Exempt FTE", data: trend.map(r => r.exempt || 0) },
             { label: "Non-Exempt FTE", data: trend.map(r => r.nonExempt || 0) },
@@ -321,9 +357,9 @@ async function buildAdminSupportDashboard(schoolId, yearId) {
 
     return {
         kpis: [
-            { label: "Admin Support FTE", value: totalFTE, ...calcTrend(totalFTE, prevTotalFTE) },
-            { label: "Exempt FTE", value: data.exempt || 0, ...calcTrend(data.exempt, prev.exempt) },
-            { label: "Non-Exempt FTE", value: data.nonExempt || 0, ...calcTrend(data.nonExempt, prev.nonExempt) }
+            { label: "Admin Support FTE", value: totalFTE, ...calcTrend(totalFTE, prevTotalFTE), trendDirection: "up"  },
+            { label: "Exempt FTE", value: data.exempt || 0, ...calcTrend(data.exempt, prev.exempt), trendDirection: "up"  },
+            { label: "Non-Exempt FTE", value: data.nonExempt || 0, ...calcTrend(data.nonExempt, prev.nonExempt), trendDirection: "up"  }
         ],
         charts: {
             bar: {

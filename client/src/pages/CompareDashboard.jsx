@@ -120,9 +120,13 @@ export default function CompareDashboard() {
         if (!user) return;
         const token = localStorage.getItem("token");
 
-        fetch("/api/compare-dashboard/years", { headers: { Authorization: `Bearer ${token}` } })
+        fetch("/api/dashboard/years", { headers: { Authorization: `Bearer ${token}` } })
             .then(res => res.json())
-            .then(data => { setYears(data); if (data.length > 0) setYearId(data[0]); })
+            .then(data => {
+                console.log("years API returned:", data);
+                setYears(Array.isArray(data) ? data : []);
+                if (Array.isArray(data) && data.length > 0) setYearId(Number(data[0].ID));
+            })
             .catch(() => setError("Failed to load years."));
     }, [user]);
 
@@ -152,7 +156,7 @@ export default function CompareDashboard() {
     if (!yearId) return <Page>Loading years...</Page>;
     if (!compareData) return <Page>Loading compare dashboard...</Page>;
 
-    const yearOptions = years.map(y => ({ value: y, label: `Year ${y}` }));
+    const yearOptions = years.map(y => ({ value: String(y.ID), label: `Year ${y.SCHOOL_YEAR}` }));
     const your = compareData?.your || {};
     const peer = compareData?.peer || {};
 
@@ -188,9 +192,9 @@ export default function CompareDashboard() {
                             />
                             <Dropdown
                                 label="Year"
-                                value={yearId}
+                                value={String(yearId)}
                                 options={yearOptions}
-                                onChange={(val) => setYearId(val)}
+                                onChange={(newValue) => setYearId(Number(newValue))}
                             />
                         </div>
                     </div>

@@ -155,9 +155,10 @@ export default function FormPage() {
     if (loading) return <Page>Loading form...</Page>;
 
     return (
-        <Page className="items-start justify-center">
-            <div className="w-full max-w-5xl px-6 py-10">
-                <Navbar role={user.role} />
+        <div style={{ height: "100vh", overflow: "hidden" }}>
+            <Navbar role={user.role}/>
+            <Page className="items-start justify-center">
+                <div className="w-full max-w-5xl px-6 py-10">
 
                 <div className="flex items-start justify-between mt-6">
                     <div>
@@ -331,11 +332,13 @@ export default function FormPage() {
                         Back
                     </Button>
 
-                    <Button disabled={step === STEPS.length - 1} onClick={() => setStep(s => Math.min(STEPS.length - 1, s + 1))}>
-                        Next
-                    </Button>
+                        <Button disabled={step === STEPS.length - 1}
+                                onClick={() => setStep(s => Math.min(STEPS.length - 1, s + 1))}>
+                            Next
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </Page>
+            </Page>
+        </div>
     );
 }

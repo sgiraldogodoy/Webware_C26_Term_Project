@@ -15,17 +15,17 @@ export default function Navbar({ role }) {
         nav_links = [
             { label: "Admin Dashboard", to: "/admin-dashboard", enabled: true },
             { label: "Compare", to: "/compare-dashboard", enabled: true },
-            { label: "Manage Users", to: "/admin/users", enabled: true },
+            // { label: "Manage Users", to: "/admin/users", enabled: true },
         ];
     } else if (role === "SCHOOL") {
         nav_links = [
             { label: "Dashboard", to: "/dashboard", enabled: true },
-            { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
+            // { label: "Benchmarking Form", to: "/benchmark-form", enabled: true },
             { label: "Form", to: "/form", enabled: true },
-            { label: "Compare", to: "/compare", enabled: false },
-            { label: "School Dashboard", to: "/school-dashboard", enabled: true },
-            { label: "Profile", to: "/profile", enabled: true },
-            { label: "Settings", to: "/settings", enabled: true }
+            { label: "Compare", to: "/compare-dashboard", enabled: true },
+            // { label: "School Dashboard", to: "/school-dashboard", enabled: true },
+            // { label: "Profile", to: "/profile", enabled: true },
+            // { label: "Settings", to: "/settings", enabled: true }
         ];
     } else if (role == null) {
         nav_links = [
