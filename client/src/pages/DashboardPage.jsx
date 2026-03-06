@@ -19,6 +19,24 @@ const CATEGORY_OPTIONS = [
     { value: "Admin support", label: "Admin support" },
 ];
 
+const CHART_TITLES = {
+    Enrollment: {
+        bar2: "Enrollment by Year Comparison",
+        bar: "Enrollment Overview",
+        donut: "Student Breakdown",
+    },
+    Personnel: {
+        bar2: "Employees by Category",
+        bar: "Enrollment Overview",
+        donut: "Workforce Composition",
+    },
+    "Admin support": {
+        bar2: "Staff by Function",
+        bar: "Exempt vs Non-Exempt",
+        donut: "Admin Composition",
+    },
+};
+
 const TEAL = "rgb(0,139,139)";
 
 function KpiCard({ label, value, trend, trendPct, trendDirection}) {
@@ -113,6 +131,7 @@ export default function SchoolDashboard() {
     if (!dashboardData) return <Page>Loading dashboard...</Page>;
 
     const yearOptions = years.map(y => ({ value: String(y.ID), label: `Year ${y.SCHOOL_YEAR}` }));
+    const titles = CHART_TITLES[category] || {};
 /*
 
     if (user.role === "SCHOOL") {
@@ -192,7 +211,7 @@ export default function SchoolDashboard() {
                     <Card className="p-4">
                         <EmployeeBarChartData
                             data={dashboardData?.charts?.bar2}
-                            title="Employees by Category"
+                            title={titles.bar2 || "Bar Chart"}
                             horizontal={true}
                             multiColor={false}
                         />
@@ -205,7 +224,7 @@ export default function SchoolDashboard() {
                     <Card className="p-4">
                         <EmployeeBarChartData
                             data={dashboardData?.charts?.bar}
-                            title="Enrollment Overview"
+                            title={titles.bar || "Bar Chart"}
                             multiColor={true}/>
                     </Card>
 
@@ -213,7 +232,7 @@ export default function SchoolDashboard() {
                         {dashboardData?.charts?.donut ? (
                             <DoughnutChart
                                 data={dashboardData.charts.donut}
-                                title="Personnel Composition"
+                                title={titles.donut || "Donut Chart"}
                                 height={260}
                             />
                         ) : (
