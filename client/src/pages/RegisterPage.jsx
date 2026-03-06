@@ -7,45 +7,7 @@ import Select from "../components/ui/Select";
 import FormField from "../components/ui/FormField";
 import Alert from "../components/ui/Alert";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/Card";
-
-function validateUsernameClient(raw) {
-    const username = (raw ?? "").trim().toLowerCase();
-    const ok =
-        /^[a-z][a-z0-9._]{2,19}$/.test(username) &&
-        !username.includes("..") &&
-        !username.includes("__") &&
-        !username.includes("._") &&
-        !username.includes("_.") &&
-        !username.endsWith(".") &&
-        !username.endsWith("_");
-
-    return {
-        ok,
-        username,
-        message: ok
-            ? ""
-            : "3–20 chars, start with a letter, letters/numbers/._ only, no consecutive or trailing ./_",
-    };
-}
-
-function validatePasswordClient(pw, confirmPw) {
-    if (!pw) return { ok: false, message: "Password is required." };
-    if (pw.length < 8 || pw.length > 64) return { ok: false, message: "Password must be 8–64 characters." };
-    if (/\s/.test(pw)) return { ok: false, message: "No spaces allowed." };
-
-    const hasLower = /[a-z]/.test(pw);
-    const hasUpper = /[A-Z]/.test(pw);
-    const hasDigit = /[0-9]/.test(pw);
-    const hasSpecial = /[!@#$%^&*()_\-+\=[\]{}|;:'",.<>/?]/.test(pw);
-    const allowedCharsOnly = /^[A-Za-z0-9!@#$%^&*()_\-+\=[\]{}|;:'",.<>/?]+$/.test(pw);
-
-    if (!allowedCharsOnly) return { ok: false, message: "Password contains unsupported characters." };
-    if (!(hasLower && hasUpper && hasDigit && hasSpecial)) {
-        return { ok: false, message: "Must include uppercase, lowercase, number, and special character." };
-    }
-    if (pw !== confirmPw) return { ok: false, message: "Passwords do not match." };
-    return { ok: true, message: "" };
-}
+import {validatePasswordClient, validateUsernameClient} from "../lib/validators.js";
 
 export default function RegisterPage() {
     const [username, setUsername] = useState("");
