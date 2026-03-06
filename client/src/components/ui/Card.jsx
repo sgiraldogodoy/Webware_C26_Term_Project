@@ -17,7 +17,7 @@ export function Card({ className = "", ...props }) {
 }
 
 export function CardHeader({ className = "", ...props }) {
-    return <div className={["p-6 pb-3", className].join(" ")} {...props} />;
+    return <div className={["p-4 pb-2", className].join(" ")} {...props} />;
 }
 
 export function CardTitle({ className = "", ...props }) {
@@ -47,5 +47,5 @@ export function CardDescription({ className = "", ...props }) {
 }
 
 export function CardContent({ className = "", ...props }) {
-    return <div className={["p-6 pt-3", className].join(" ")} {...props} />;
+    return <div className={["p-4 pt-2", className].join(" ")} {...props} />;
 }
